@@ -13,11 +13,32 @@
             background-color: #2e3440;
             margin: 0;
             padding: 0;
+            color: #eceff4;
         }
         #search-bar {
             width: 100%;
             text-align: center;
             margin: 20px;
+        }
+        #searchInput {
+            width: 50%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #4c566a;
+            background-color: #3b4252;
+            color: #eceff4;
+        }
+        #searchButton {
+            padding: 10px 20px;
+            margin-left: 10px;
+            border-radius: 5px;
+            border: 1px solid #4c566a;
+            background-color: #5e81ac;
+            color: #eceff4;
+            cursor: pointer;
+        }
+        #searchButton:hover {
+            background-color: #81a1c1;
         }
         #gallery {
             display: flex;
@@ -30,18 +51,18 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
         img {
-            width: 300px;  /* Adjust size as needed */
+            width: 300px;
             height: auto;
             border-radius: 10px;
             cursor: pointer;
-            object-fit: cover;  /* Maintain aspect ratio */
+            object-fit: cover;
         }
     </style>
 </head>
 <body>
     <div id="search-bar">
         <input type="text" id="searchInput" placeholder="Search for wallpapers..." />
-        <button onclick="searchWallpapers()">Search</button>
+        <button id="searchButton" onclick="searchWallpapers()">Search</button>
     </div>
     <div id="gallery"></div>
 
