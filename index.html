@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TATBD's Ultimate Wallpaper Repo</title>
+    <title>TATBD's Ultimate Wallpapers</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -115,6 +115,10 @@
                 const imgElement = document.createElement('img');
                 imgElement.src = file.download_url;  // Load the high-res image directly
                 imgElement.alt = file.name;
+                imgElement.onerror = () => {
+                    imgElement.src = 'default-image.jpg';  // Fallback to a default image
+                    console.error(`Failed to load image: ${file.name}`);
+                };
 
                 // Wrap image in an <a> tag with download attribute
                 const downloadLink = document.createElement('a');
