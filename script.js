@@ -2,7 +2,7 @@ let wallpapers = [];
 
 // Function to load wallpapers from the GitHub repository
 async function loadWallpapers() {
-    const repoUrl = 'https://api.github.com/repos/itz-rj-here/wallpapers/contents/images/';
+    const repoUrl = 'https://api.github.com/repos/itz-rj-here/wallpapers/contents/images?ref=patch-1';
     try {
         const response = await fetch(repoUrl);
         if (!response.ok) throw new Error('Failed to fetch wallpapers');
