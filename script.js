@@ -2,29 +2,27 @@ let wallpapers = [];
 const itemsPerPage = 50;
 let currentPage = 1;
 
-// Function to load wallpapers from the GitHub repository
-async function loadWallpapers() {
-    const repoUrl = 'https://api.github.com/repos/itz-rj-here/wallpapers/contents/images?ref=patch-1';
-    try {
-        const response = await fetch(repoUrl);
-        if (!response.ok) throw new Error('Failed to fetch wallpapers');
-        const files = await response.json();
+// Function to load wallpapers from the local images folder
+function loadWallpapers() {
+    fetch('/images')
+        .then(response => response.json())
+        .then(imageFilenames => {
+            const imageFolder = 'images/'; // Path to the local images folder
 
-        // Store only image files (supports .jpg, .jpeg, .png, and .gif)
-        wallpapers = files.filter(file => 
-            file.name.endsWith('.jpg') || file.name.endsWith('.jpeg') || file.name.endsWith('.png') || file.name.endsWith('.gif')
-        );
+            // Store only image files
+            wallpapers = imageFilenames.map(filename => ({
+                name: filename,
+                download_url: imageFolder + filename
+            }));
 
-        // Shuffle the wallpapers array
-        shuffleArray(wallpapers);
+            // Shuffle the wallpapers array
+            shuffleArray(wallpapers);
 
-        // Display the first page of wallpapers
-        displayWallpapers(wallpapers, currentPage);
-        createPagination(wallpapers.length, itemsPerPage);
-    } catch (error) {
-        console.error('Error:', error);
-        document.getElementById('gallery').innerHTML = '<p style="color:white;">Failed to load wallpapers.</p>';
-    }
+            // Display the first page of wallpapers
+            displayWallpapers(wallpapers, currentPage);
+            createPagination(wallpapers.length, itemsPerPage);
+        })
+        .catch(error => console.error('Error loading images:', error));
 }
 
 // Function to shuffle an array using the Fisher-Yates algorithm
@@ -143,27 +141,27 @@ function updatePagination() {
     } else {
         nextButton.style.display = 'inline-block';
     }
-    }
-    
-    // Function to search wallpapers based on the search term
-    function searchWallpapers() {
+}
+
+// Function to search wallpapers based on the search term
+function searchWallpapers() {
     const searchTerm = document.getElementById('searchInput').value.toLowerCase();
     const filteredWallpapers = wallpapers.filter(file => file.name.toLowerCase().includes(searchTerm));
     currentPage = 1;
     displayWallpapers(filteredWallpapers, currentPage);
     createPagination(filteredWallpapers.length, itemsPerPage);
-    }
-    
-    // Enter key support for the search input
-    const searchInput = document.getElementById('searchInput');
-    searchInput.addEventListener('keydown', function(event) {
+}
+
+// Enter key support for the search input
+const searchInput = document.getElementById('searchInput');
+searchInput.addEventListener('keydown', function(event) {
     if (event.key === 'Enter') {
         searchWallpapers();
     }
-    });
-    
-    // Set the current year in the footer
-    document.getElementById('current-year').textContent = new Date().getFullYear();
-    
-    // Load and display wallpapers in the original order from GitHub
-    loadWallpapers();
+});
+
+// Set the current year in the footer
+document.getElementById('current-year').textContent = new Date().getFullYear();
+
+// Load and display wallpapers in the original order from the local folder
+loadWallpapers();
