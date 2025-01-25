@@ -4,147 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TATBD's Ultimate Wallpaper Repo</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            background-color: #2e3440;
-            margin: 0;
-            padding: 0;
-            color: #eceff4;
-        }
-        #search-bar {
-            width: 100%;
-            text-align: center;
-            margin: 20px;
-        }
-        #searchInput {
-            width: 50%;
-            padding: 10px;
-            border-radius: 5px;
-            border: 1px solid #4c566a;
-            background-color: #3b4252;
-            color: #eceff4;
-        }
-        #searchButton {
-            padding: 10px 20px;
-            margin-left: 10px;
-            border-radius: 5px;
-            border: 1px solid #4c566a;
-            background-color: #5e81ac;
-            color: #eceff4;
-            cursor: pointer;
-        }
-        #searchButton:hover {
-            background-color: #81a1c1;
-        }
-        #gallery {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            width: 100%;
-        }
-        .wallpaper {
-            margin: 15px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        img {
-            width: 300px;
-            height: auto;
-            border-radius: 10px;
-            cursor: pointer;
-            object-fit: cover;
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div id="search-bar">
-        <input type="text" id="searchInput" placeholder="Search for wallpapers..." />
+        <input type="text" id="searchInput" placeholder="Search for wallpapers..." aria-label="Search for wallpapers..." />
         <button id="searchButton" onclick="searchWallpapers()">Search</button>
     </div>
     <div id="gallery"></div>
-
-    <script>
-        let wallpapers = [];
-
-        async function loadWallpapers() {
-            const repoUrl = 'https://api.github.com/repos/TeenAgeTechBD/wallpapers/contents/';
-            try {
-                const response = await fetch(repoUrl);
-                if (!response.ok) throw new Error('Failed to fetch wallpapers');
-                const files = await response.json();
-
-                // Store only image files (supports .jpg, .jpeg, and .png)
-                wallpapers = files.filter(file => 
-                    file.name.endsWith('.jpg') || file.name.endsWith('.jpeg') || file.name.endsWith('.png')
-                );
-
-                // Shuffle the wallpapers array
-                shuffleArray(wallpapers);
-
-                // Display the wallpapers in the order they appear in GitHub
-                displayWallpapers(wallpapers);
-            } catch (error) {
-                console.error('Error:', error);
-                document.getElementById('gallery').innerHTML = '<p style="color:white;">Failed to load wallpapers.</p>';
-            }
-        }
-
-        function shuffleArray(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];  // Swap elements
-            }
-        }
-
-        function displayWallpapers(files) {
-            const gallery = document.getElementById('gallery');
-            gallery.innerHTML = '';  // Clear existing wallpapers
-
-            if (files.length === 0) {
-                gallery.innerHTML = '<p style="color:white;">No wallpapers found.</p>';
-                return;
-            }
-
-            files.forEach(file => {
-                const imgElement = document.createElement('img');
-                imgElement.src = file.download_url;  // Load the high-res image directly
-                imgElement.alt = file.name;
-
-                // Wrap image in an <a> tag with download attribute
-                const downloadLink = document.createElement('a');
-                downloadLink.href = file.download_url;
-                downloadLink.download = file.name;  // Filename for download
-                downloadLink.appendChild(imgElement);
-
-                const div = document.createElement('div');
-                div.classList.add('wallpaper');
-                div.appendChild(downloadLink);
-                gallery.appendChild(div);
-            });
-        }
-
-        function searchWallpapers() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            const filteredWallpapers = wallpapers.filter(file => file.name.toLowerCase().includes(searchTerm));
-            displayWallpapers(filteredWallpapers);
-        }
-
-        // Enter key support for the search
-        const searchInput = document.getElementById('searchInput');
-        searchInput.addEventListener('keydown', function(event) {
-            if (event.key === 'Enter') {
-                searchWallpapers();
-            }
-        });
-
-        // Load and display wallpapers in the original order from GitHub
-        loadWallpapers();
-    </script>
+    <div id="pagination">
+        <button id="prevButton" disabled>Previous</button>
+        <span id="pageInfo">Page 1 of 1</span>
+        <button id="nextButton" disabled>Next</button>
+    </div>
+    <footer>
+        <p>Copyright © <span id="currentYear"></span> All rights reserved by various artists.</p>
+    </footer>
+    <script src="script.js"></script>
 </body>
 </html>
