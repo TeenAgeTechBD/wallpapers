@@ -72,6 +72,7 @@
     <script>
         let wallpapers = [];
 
+        // Function to load wallpapers from the GitHub repository
         async function loadWallpapers() {
             const repoUrl = 'https://api.github.com/repos/TeenAgeTechBD/wallpapers/contents/';
             try {
@@ -79,9 +80,9 @@
                 if (!response.ok) throw new Error('Failed to fetch wallpapers');
                 const files = await response.json();
 
-                // Store only image files (supports .jpg, .jpeg, and .png)
+                // Store only image files (supports .jpg, .jpeg, .png, and .gif)
                 wallpapers = files.filter(file => 
-                    file.name.endsWith('.jpg') || file.name.endsWith('.jpeg') || file.name.endsWith('.png')
+                    file.name.endsWith('.jpg') || file.name.endsWith('.jpeg') || file.name.endsWith('.png') || file.name.endsWith('.gif')
                 );
 
                 // Shuffle the wallpapers array
@@ -95,6 +96,7 @@
             }
         }
 
+        // Function to shuffle an array using the Fisher-Yates algorithm
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -102,6 +104,7 @@
             }
         }
 
+        // Function to display wallpapers in the gallery
         function displayWallpapers(files) {
             const gallery = document.getElementById('gallery');
             gallery.innerHTML = '';  // Clear existing wallpapers
@@ -133,13 +136,14 @@
             });
         }
 
+        // Function to search wallpapers based on the search term
         function searchWallpapers() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
             const filteredWallpapers = wallpapers.filter(file => file.name.toLowerCase().includes(searchTerm));
             displayWallpapers(filteredWallpapers);
         }
 
-        // Enter key support for the search
+        // Enter key support for the search input
         const searchInput = document.getElementById('searchInput');
         searchInput.addEventListener('keydown', function(event) {
             if (event.key === 'Enter') {
