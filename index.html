@@ -14,11 +14,14 @@
             margin: 0;
             padding: 0;
             color: #eceff4;
+            height: 100vh;
+            overflow: hidden; /* Hide scrollbar */
         }
         #search-bar {
             width: 100%;
             text-align: center;
             margin: 20px;
+            z-index: 1; /* Ensure search bar is above the gallery */
         }
         #searchInput {
             width: 50%;
@@ -45,6 +48,8 @@
             flex-wrap: wrap;
             justify-content: center;
             width: 100%;
+            height: calc(100vh - 80px); /* Adjust height to account for search bar */
+            overflow-y: auto; /* Enable vertical scrolling */
         }
         .wallpaper {
             margin: 15px;
@@ -59,6 +64,22 @@
             border-radius: 10px;
             cursor: pointer;
             object-fit: cover;
+        }
+        /* Custom scrollbar styles */
+        #gallery::-webkit-scrollbar {
+            width: 12px;
+        }
+        #gallery::-webkit-scrollbar-track {
+            background: #3b4252;
+            border-radius: 10px;
+        }
+        #gallery::-webkit-scrollbar-thumb {
+            background-color: #5e81ac;
+            border-radius: 10px;
+            border: 3px solid #3b4252;
+        }
+        #gallery::-webkit-scrollbar-thumb:hover {
+            background-color: #81a1c1;
         }
     </style>
 </head>
