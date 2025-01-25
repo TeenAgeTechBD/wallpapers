@@ -95,7 +95,7 @@
 
         // Function to load wallpapers from the GitHub repository
         async function loadWallpapers() {
-            const repoUrl = 'https://api.github.com/repos/TeenAgeTechBD/wallpapers/contents/';
+            const repoUrl = 'https://api.github.com/repos/TeenAgeTechBD/wallpapers/contents/images/';
             try {
                 const response = await fetch(repoUrl);
                 if (!response.ok) throw new Error('Failed to fetch wallpapers');
