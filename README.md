@@ -12,11 +12,11 @@ Welcome to TATBD's Ultimate Wallpapers repository! This project showcases a coll
 ## Folder Structure
 
 - `index.html`: The main HTML file that contains the structure and logic for displaying the wallpapers.
-- `images/`: The folder where all the wallpaper images are stored.
+- `wallpapers/`: The folder where all the wallpaper images are stored.
 
 ## Adding New Wallpapers
 
-To add new wallpapers to the gallery, simply upload your image files to the `images/` folder in this repository. Supported image formats include `.jpg`, `.jpeg`, `.png`.
+To add new wallpapers to the gallery, simply upload your image files to the `wallpapers/` folder in this repository. Supported image formats include `.jpg`, `.jpeg`, `.png`.
 
 ## Maintainers
 
