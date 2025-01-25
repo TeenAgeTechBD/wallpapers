@@ -1,4 +1,6 @@
 let wallpapers = [];
+const itemsPerPage = 50;
+let currentPage = 1;
 
 // Function to load wallpapers from the GitHub repository
 async function loadWallpapers() {
@@ -16,8 +18,9 @@ async function loadWallpapers() {
         // Shuffle the wallpapers array
         shuffleArray(wallpapers);
 
-        // Display the wallpapers in the order they appear in GitHub
-        displayWallpapers(wallpapers);
+        // Display the first page of wallpapers
+        displayWallpapers(wallpapers, currentPage);
+        createPagination(wallpapers.length, itemsPerPage);
     } catch (error) {
         console.error('Error:', error);
         document.getElementById('gallery').innerHTML = '<p style="color:white;">Failed to load wallpapers.</p>';
@@ -33,16 +36,20 @@ function shuffleArray(array) {
 }
 
 // Function to display wallpapers in the gallery
-function displayWallpapers(files) {
+function displayWallpapers(files, page) {
     const gallery = document.getElementById('gallery');
     gallery.innerHTML = '';  // Clear existing wallpapers
 
-    if (files.length === 0) {
+    const start = (page - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+    const paginatedItems = files.slice(start, end);
+
+    if (paginatedItems.length === 0) {
         gallery.innerHTML = '<p style="color:white;">No wallpapers found.</p>';
         return;
     }
 
-    files.forEach(file => {
+    paginatedItems.forEach(file => {
         const imgElement = document.createElement('img');
         imgElement.src = file.download_url;  // Load the high-res image directly
         imgElement.alt = file.name;
@@ -64,20 +71,99 @@ function displayWallpapers(files) {
     });
 }
 
-// Function to search wallpapers based on the search term
-function searchWallpapers() {
-    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-    const filteredWallpapers = wallpapers.filter(file => file.name.toLowerCase().includes(searchTerm));
-    displayWallpapers(filteredWallpapers);
+// Function to create pagination controls
+function createPagination(totalItems, itemsPerPage) {
+    const pagination = document.getElementById('pagination');
+    pagination.innerHTML = '';  // Clear existing pagination
+
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+    if (totalPages > 1) {
+        const prevButton = document.createElement('span');
+        prevButton.classList.add('page-link');
+        prevButton.textContent = 'Previous';
+        prevButton.onclick = () => {
+            if (currentPage > 1) {
+                currentPage--;
+                displayWallpapers(wallpapers, currentPage);
+                updatePagination();
+            }
+        };
+        pagination.appendChild(prevButton);
+
+        for (let i = 1; i <= totalPages; i++) {
+            const pageLink = document.createElement('span');
+            pageLink.classList.add('page-link');
+            pageLink.textContent = i;
+            pageLink.onclick = () => {
+                currentPage = i;
+                displayWallpapers(wallpapers, currentPage);
+                updatePagination();
+            };
+            pagination.appendChild(pageLink);
+        }
+
+        const nextButton = document.createElement('span');
+        nextButton.classList.add('page-link');
+        nextButton.textContent = 'Next';
+        nextButton.onclick = () => {
+            if (currentPage < totalPages) {
+                currentPage++;
+                displayWallpapers(wallpapers, currentPage);
+                updatePagination();
+            }
+        };
+        pagination.appendChild(nextButton);
+    }
+
+    updatePagination();
 }
 
-// Enter key support for the search input
-const searchInput = document.getElementById('searchInput');
-searchInput.addEventListener('keydown', function(event) {
+// Function to update pagination controls
+function updatePagination() {
+    const pageLinks = document.querySelectorAll('.page-link');
+    pageLinks.forEach(link => {
+        link.classList.remove('active');
+        if (parseInt(link.textContent) === currentPage) {
+            link.classList.add('active');
+        }
+    });
+
+    const prevButton = document.querySelector('.page-link:first-child');
+    const nextButton = document.querySelector('.page-link:last-child');
+
+    if (currentPage === 1) {
+        prevButton.style.display = 'none';
+    } else {
+        prevButton.style.display = 'inline-block';
+    }
+    
+    if (currentPage === Math.ceil(wallpapers.length / itemsPerPage)) {
+        nextButton.style.display = 'none';
+    } else {
+        nextButton.style.display = 'inline-block';
+    }
+    }
+    
+    // Function to search wallpapers based on the search term
+    function searchWallpapers() {
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    const filteredWallpapers = wallpapers.filter(file => file.name.toLowerCase().includes(searchTerm));
+    currentPage = 1;
+    displayWallpapers(filteredWallpapers, currentPage);
+    createPagination(filteredWallpapers.length, itemsPerPage);
+    }
+    
+    // Enter key support for the search input
+    const searchInput = document.getElementById('searchInput');
+    searchInput.addEventListener('keydown', function(event) {
     if (event.key === 'Enter') {
         searchWallpapers();
     }
-});
-
-// Load and display wallpapers in the original order from GitHub
-loadWallpapers();
+    });
+    
+    // Set the current year in the footer
+    document.getElementById('current-year').textContent = new Date().getFullYear();
+    
+    // Load and display wallpapers in the original order from GitHub
+    loadWallpapers();
