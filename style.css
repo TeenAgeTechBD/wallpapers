@@ -1,0 +1,76 @@
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #2e3440;
+    margin: 0;
+    padding: 0;
+    color: #eceff4;
+    height: 100vh;
+    overflow: hidden; /* Hide scrollbar */
+}
+#search-bar {
+    width: 100%;
+    text-align: center;
+    margin: 20px;
+    z-index: 1; /* Ensure search bar is above the gallery */
+}
+#searchInput {
+    width: 50%;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #4c566a;
+    background-color: #3b4252;
+    color: #eceff4;
+}
+#searchButton {
+    padding: 10px 20px;
+    margin-left: 10px;
+    border-radius: 5px;
+    border: 1px solid #4c566a;
+    background-color: #5e81ac;
+    color: #eceff4;
+    cursor: pointer;
+}
+#searchButton:hover {
+    background-color: #81a1c1;
+}
+#gallery {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+    height: calc(100vh - 80px); /* Adjust height to account for search bar */
+    overflow-y: auto; /* Enable vertical scrolling */
+}
+.wallpaper {
+    margin: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+img {
+    width: 300px;
+    height: auto;
+    border-radius: 10px;
+    cursor: pointer;
+    object-fit: cover;
+}
+/* Custom scrollbar styles */
+#gallery::-webkit-scrollbar {
+    width: 12px;
+}
+#gallery::-webkit-scrollbar-track {
+    background: #3b4252;
+    border-radius: 10px;
+}
+#gallery::-webkit-scrollbar-thumb {
+    background-color: #5e81ac;
+    border-radius: 10px;
+    border: 3px solid #3b4252;
+}
+#gallery::-webkit-scrollbar-thumb:hover {
+    background-color: #81a1c1;
+}
