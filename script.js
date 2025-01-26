@@ -132,24 +132,9 @@ function startSlideshow() {
     let currentIndex = 0;
     const slideshowContainer = document.createElement('div');
     slideshowContainer.id = 'slideshow-container';
-    slideshowContainer.style.position = 'fixed';
-    slideshowContainer.style.top = '0';
-    slideshowContainer.style.left = '0';
-    slideshowContainer.style.width = '100%';
-    slideshowContainer.style.height = '100%';
-    slideshowContainer.style.backgroundColor = '#2e3440';
-    slideshowContainer.style.zIndex = '10000';
-    slideshowContainer.style.display = 'flex';
-    slideshowContainer.style.justifyContent = 'center';
-    slideshowContainer.style.alignItems = 'center';
-    slideshowContainer.style.overflow = 'hidden';
     document.body.appendChild(slideshowContainer);
 
     const imgElement = document.createElement('img');
-    imgElement.style.width = '100%';
-    imgElement.style.height = '100%';
-    imgElement.style.objectFit = 'cover'; // Ensure the image covers the entire screen
-    imgElement.style.borderRadius = '0'; // Remove border radius for fullscreen
     slideshowContainer.appendChild(imgElement);
 
     // Function to load the next wallpaper
