@@ -15,7 +15,7 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-app.get('/api/wallpapers', (req, res) => {
+app.get('/wallpapers', (req, res) => {
     const wallpapersDir = path.join(__dirname, 'wallpapers');
     fs.readdir(wallpapersDir, (err, files) => {
         if (err) {
