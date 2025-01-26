@@ -8,7 +8,10 @@
 </head>
 <body>
     <div id="search-bar">
-        <input type="text" id="searchInput" placeholder="Search for wallpapers..." aria-label="Search for wallpapers..." />
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Search for wallpapers..." aria-label="Search for wallpapers..." />
+            <button id="clearButton" onclick="clearSearch()">✖</button>
+        </div>
         <button id="searchButton" onclick="searchWallpapers()">Search</button>
         <button id="slideshowButton" onclick="startSlideshow()">Slideshow</button>
     </div>

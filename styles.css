@@ -16,13 +16,32 @@ body {
     margin: 20px;
 }
 
+.search-container {
+    position: relative;
+    display: inline-block;
+}
+
 #searchInput {
-    width: 50%;
-    padding: 10px;
+    width: 300px;
+    padding: 10px 40px 10px 10px;
     border-radius: 5px;
     border: 1px solid #4c566a;
     background-color: #3b4252;
     color: #eceff4;
+    box-sizing: border-box;
+}
+
+#clearButton {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-55%);
+    background: none;
+    border: none;
+    color: #eceff4;
+    font-size: 16px;
+    cursor: pointer;
+    display: none;
 }
 
 #searchButton, #slideshowButton {

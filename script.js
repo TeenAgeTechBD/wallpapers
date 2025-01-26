@@ -115,6 +115,29 @@ function searchWallpapers() {
     updatePagination(filteredWallpapers);
 }
 
+function clearSearch() {
+    document.getElementById('searchInput').value = '';
+    currentPage = 1;
+    displayWallpapers(getPaginatedWallpapers(currentPage));
+    updatePagination();
+}
+
+document.getElementById('searchInput').addEventListener('input', function() {
+    const clearButton = document.getElementById('clearButton');
+    if (this.value.length > 0) {
+        clearButton.style.display = 'block';
+    } else {
+        clearButton.style.display = 'none';
+    }
+});
+
+document.getElementById('clearButton').addEventListener('click', function() {
+    const searchInput = document.getElementById('searchInput');
+    searchInput.value = '';
+    searchInput.dispatchEvent(new Event('input')); // Trigger input event to hide the clear button
+});
+
+
 function getPaginatedWallpapers(page, data = wallpapers) {
     const startIndex = (page - 1) * wallpapersPerPage;
     const endIndex = startIndex + wallpapersPerPage;
