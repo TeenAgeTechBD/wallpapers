@@ -1,22 +1,50 @@
 let wallpapers = [];
 let currentPage = 1;
-const wallpapersPerPage = 12; // Number of wallpapers to display per page
-let slideshowInterval = null; // To store the slideshow interval
+let wallpapersPerPage = calculateWallpapersPerPage();
+let slideshowInterval = null;
 
-// Cache for storing fetched wallpapers
 let cache = {
     data: null,
     timestamp: null,
-    cacheDuration: 60 * 60 * 1000, // Cache duration: 1 hour
+    cacheDuration: 60 * 60 * 1000,
 };
 
-// Set the current year in the footer
 document.getElementById('currentYear').textContent = new Date().getFullYear();
 
-async function loadWallpapers() {
-    const repoUrl = 'https://api.github.com/repos/TeenAgeTechBD/wallpapers/contents/wallpapers'; // Updated API URL
+function calculateWallpapersPerPage() {
+    const screenWidth = window.innerWidth;
+    const baseWidth = 1920;
+    const baseCount = 12;
+    const minCount = 5;
 
-    // Check if cached data is still valid
+    const ratio = screenWidth / baseWidth;
+
+    if (ratio < 1) {
+        return Math.max(minCount, Math.floor(baseCount * ratio));
+    } else {
+        const imageWidth = 300;
+        const gap = 30;
+        const availableWidth = screenWidth - (2 * gap);
+        const imagesPerRow = Math.floor(availableWidth / (imageWidth + gap));
+        const rows = Math.floor(window.innerHeight / (imageWidth + gap));
+        const totalImages = imagesPerRow * rows;
+
+        if (Math.abs(screenWidth - baseWidth) < 10) {
+            return baseCount;
+        }
+        return Math.max(minCount, totalImages);
+    }
+}
+
+window.addEventListener('resize', () => {
+    wallpapersPerPage = calculateWallpapersPerPage();
+    displayWallpapers(getPaginatedWallpapers(currentPage));
+    updatePagination();
+});
+
+async function loadWallpapers() {
+    const repoUrl = 'https://api.github.com/repos/TeenAgeTechBD/wallpapers/contents/wallpapers';
+
     if (cache.data && Date.now() - cache.timestamp < cache.cacheDuration) {
         wallpapers = cache.data;
         displayWallpapers(getPaginatedWallpapers(currentPage));
@@ -29,19 +57,15 @@ async function loadWallpapers() {
         if (!response.ok) throw new Error('Failed to fetch wallpapers');
         const files = await response.json();
 
-        // Store only image files (supports .jpg, .jpeg, and .png)
         wallpapers = files.filter(file =>
             file.name.endsWith('.jpg') || file.name.endsWith('.jpeg') || file.name.endsWith('.png')
         );
 
-        // Cache the fetched data
         cache.data = wallpapers;
         cache.timestamp = Date.now();
 
-        // Shuffle the wallpapers array
         shuffleArray(wallpapers);
 
-        // Display the first page of wallpapers
         displayWallpapers(getPaginatedWallpapers(currentPage));
         updatePagination();
     } catch (error) {
@@ -53,13 +77,13 @@ async function loadWallpapers() {
 function shuffleArray(array) {
     for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]]; // Swap elements
+        [array[i], array[j]] = [array[j], array[i]];
     }
 }
 
 function displayWallpapers(files) {
     const gallery = document.getElementById('gallery');
-    gallery.innerHTML = ''; // Clear existing wallpapers
+    gallery.innerHTML = '';
 
     if (files.length === 0) {
         gallery.innerHTML = '<p style="color:white;">No wallpapers found.</p>';
@@ -68,13 +92,12 @@ function displayWallpapers(files) {
 
     files.forEach(file => {
         const imgElement = document.createElement('img');
-        imgElement.src = file.download_url; // Load the high-res image directly
+        imgElement.src = file.download_url;
         imgElement.alt = file.name;
 
-        // Wrap image in an <a> tag with download attribute
         const downloadLink = document.createElement('a');
         downloadLink.href = file.download_url;
-        downloadLink.download = file.name; // Filename for download
+        downloadLink.download = file.name;
         downloadLink.appendChild(imgElement);
 
         const div = document.createElement('div');
@@ -87,7 +110,7 @@ function displayWallpapers(files) {
 function searchWallpapers() {
     const searchTerm = document.getElementById('searchInput').value.toLowerCase();
     const filteredWallpapers = wallpapers.filter(file => file.name.toLowerCase().includes(searchTerm));
-    currentPage = 1; // Reset to the first page after search
+    currentPage = 1;
     displayWallpapers(getPaginatedWallpapers(currentPage, filteredWallpapers));
     updatePagination(filteredWallpapers);
 }
@@ -109,26 +132,23 @@ function updatePagination(data = wallpapers) {
     nextButton.disabled = currentPage === totalPages;
 }
 
-// Slideshow functionality
 function startSlideshow() {
     if (slideshowInterval) {
-        clearInterval(slideshowInterval); // Stop existing slideshow
+        clearInterval(slideshowInterval);
         slideshowInterval = null;
         document.getElementById('slideshowButton').textContent = 'Slideshow';
-        document.exitFullscreen(); // Exit fullscreen
-        document.body.removeChild(document.getElementById('slideshow-container')); // Remove slideshow container
-        document.body.style.cursor = 'auto'; // Restore cursor
+        document.exitFullscreen();
+        document.body.removeChild(document.getElementById('slideshow-container'));
+        document.body.style.cursor = 'auto';
         return;
     }
 
-    // Enter fullscreen mode
     if (!document.fullscreenElement) {
         document.documentElement.requestFullscreen().catch(err => {
             console.error('Error attempting to enable fullscreen mode:', err);
         });
     }
 
-    // Start the slideshow
     let currentIndex = 0;
     const slideshowContainer = document.createElement('div');
     slideshowContainer.id = 'slideshow-container';
@@ -148,69 +168,58 @@ function startSlideshow() {
     const imgElement = document.createElement('img');
     imgElement.style.width = '100%';
     imgElement.style.height = '100%';
-    imgElement.style.objectFit = 'cover'; // Ensure the image covers the entire screen
-    imgElement.style.borderRadius = '0'; // Remove border radius for fullscreen
+    imgElement.style.objectFit = 'cover';
+    imgElement.style.borderRadius = '0';
     slideshowContainer.appendChild(imgElement);
 
-    // Function to load the next wallpaper
     const loadNextWallpaper = () => {
         if (currentIndex >= wallpapers.length) {
-            currentIndex = 0; // Loop back to the first wallpaper
+            currentIndex = 0;
         }
         const wallpaper = wallpapers[currentIndex];
-        imgElement.src = wallpaper.download_url; // Load the high-res image directly
+        imgElement.src = wallpaper.download_url;
         imgElement.alt = wallpaper.name;
         currentIndex++;
     };
 
-    // Load the first wallpaper immediately
     loadNextWallpaper();
 
-    // Change wallpaper every 5 seconds
     slideshowInterval = setInterval(loadNextWallpaper, 5000);
 
-    // Hide cursor during slideshow
     document.body.style.cursor = 'none';
 
-    // Open image in a new tab when clicked
     imgElement.addEventListener('click', () => {
         window.open(imgElement.src, '_blank');
     });
 
-    // Show popup after entering fullscreen
     const popup = document.createElement('div');
     popup.id = 'slideshow-popup';
     popup.textContent = 'Press CTRL+R to exit slideshow';
     document.body.appendChild(popup);
 
-    // Display the popup
     popup.style.display = 'block';
 
-    // Hide the popup after 2 seconds
     setTimeout(() => {
         popup.style.display = 'none';
-        document.body.removeChild(popup); // Remove popup from DOM
+        document.body.removeChild(popup);
     }, 2000);
 
-    // Update button text
     document.getElementById('slideshowButton').textContent = 'Stop Slideshow';
 }
 
-// Event listener for CTRL+R to exit slideshow
 document.addEventListener('keydown', (event) => {
     if (event.ctrlKey && event.key === 'r') {
         if (slideshowInterval) {
-            clearInterval(slideshowInterval); // Stop slideshow
+            clearInterval(slideshowInterval);
             slideshowInterval = null;
             document.getElementById('slideshowButton').textContent = 'Slideshow';
-            document.exitFullscreen(); // Exit fullscreen
-            document.body.removeChild(document.getElementById('slideshow-container')); // Remove slideshow container
-            document.body.style.cursor = 'auto'; // Restore cursor
+            document.exitFullscreen();
+            document.body.removeChild(document.getElementById('slideshow-container'));
+            document.body.style.cursor = 'auto';
         }
     }
 });
 
-// Event listeners
 document.getElementById('searchInput').addEventListener('keydown', function (event) {
     if (event.key === 'Enter') {
         searchWallpapers();
@@ -234,5 +243,4 @@ document.getElementById('nextButton').addEventListener('click', () => {
     }
 });
 
-// Load and display wallpapers on page load
 loadWallpapers();
