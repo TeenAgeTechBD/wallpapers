@@ -44,9 +44,9 @@ body {
     flex-wrap: wrap;
     justify-content: center;
     width: 100%;
-    flex: 1; /* Fill remaining space */
-    padding-bottom: 20px; /* Reduced padding since footer is no longer sticky */
-    overflow-y: auto; /* Add scrollbar when content overflows */
+    flex: 1;
+    padding-bottom: 20px;
+    overflow-y: auto;
 }
 
 .wallpaper {
@@ -98,10 +98,9 @@ footer {
     padding: 10px 0;
     color: #eceff4;
     font-size: 14px;
-    margin-top: auto; /* Push footer to the bottom */
+    margin-top: auto;
 }
 
-/* Slideshow container */
 #slideshow-container {
     position: fixed;
     top: 0;
@@ -114,18 +113,17 @@ footer {
     justify-content: center;
     align-items: center;
     overflow: hidden;
-    cursor: none; /* Hide cursor during slideshow */
+    cursor: none;
 }
 
 #slideshow-container img {
     width: 100%;
     height: 100%;
-    object-fit: cover; /* Ensure the image covers the entire screen */
-    border-radius: 0; /* Remove border radius for fullscreen */
-    cursor: pointer; /* Show pointer when hovering over the image */
+    object-fit: cover;
+    border-radius: 0;
+    cursor: pointer;
 }
 
-/* Popup styles */
 #slideshow-popup {
     position: fixed;
     top: 50%;
@@ -136,9 +134,9 @@ footer {
     padding: 15px 25px;
     border-radius: 10px;
     font-size: 16px;
-    z-index: 10001; /* Above the slideshow container */
-    display: none; /* Hidden by default */
-    animation: fadeOut 2s forwards; /* Fade out after 2 seconds */
+    z-index: 10001;
+    display: none;
+    animation: fadeOut 2s forwards;
 }
 
 @keyframes fadeOut {
@@ -154,7 +152,6 @@ footer {
     }
 }
 
-/* Hide scrollbar during fullscreen */
 :fullscreen #slideshow-container {
     overflow: hidden;
 }
