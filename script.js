@@ -1,6 +1,6 @@
 let wallpapers = [];
 let currentPage = 1;
-const wallpapersPerPage = 12; // Number of wallpapers to display per page
+const wallpapersPerPage = 36; // Number of wallpapers to display per page
 let slideshowInterval = null; // To store the slideshow interval
 
 // Cache for storing fetched wallpapers
