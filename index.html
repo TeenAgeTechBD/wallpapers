@@ -8,14 +8,23 @@
     <link rel="icon" href="logo.png" />
 </head>
 <body>
-    <div id="search-bar">
-        <div class="search-container">
-            <input type="text" id="searchInput" placeholder="Search for wallpapers..." aria-label="Search for wallpapers..." />
-            <button id="clearButton" onclick="clearSearch()">✖</button>
+    <header>
+        <div id="header-content">
+            <div id="logo-container">
+                <a href="https://teenagetechbd.github.io/" id="logo-link">
+                    <img src="logo-2.png" alt="Logo" id="logo" />
+                </a>
+            </div>
+            <div id="search-bar">
+                <div class="search-container">
+                    <input type="text" id="searchInput" placeholder="Search for wallpapers..." aria-label="Search for wallpapers..." />
+                    <button id="clearButton" onclick="clearSearch()">✖</button>
+                </div>
+                <button id="searchButton" onclick="searchWallpapers()">Search</button>
+                <button id="slideshowButton" onclick="startSlideshow()">Slideshow</button>
+            </div>
         </div>
-        <button id="searchButton" onclick="searchWallpapers()">Search</button>
-        <button id="slideshowButton" onclick="startSlideshow()">Slideshow</button>
-    </div>
+    </header>
     <div id="gallery"></div>
     <div id="pagination">
         <button id="prevButton" disabled>Previous</button>

@@ -8,12 +8,47 @@ body {
     padding: 0;
     color: #eceff4;
     min-height: 100vh;
+    user-select: none;
+    overflow-x: hidden;
+}
+
+header {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+#header-content {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    max-width: 1200px;
+}
+
+#logo-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 20px;
+}
+
+#logo-link {
+    margin-right: 15px;
+}
+
+#logo {
+    width: 100px;
+    height: auto;
+    border-radius: 0;
 }
 
 #search-bar {
-    width: 100%;
-    text-align: center;
-    margin: 20px;
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .search-container {
@@ -179,7 +214,6 @@ footer {
     overflow: hidden;
 }
 
-/* Custom scrollbar styles */
 ::-webkit-scrollbar {
     width: 12px;
 }
