@@ -44,7 +44,9 @@ body {
     flex-wrap: wrap;
     justify-content: center;
     width: 100%;
+    flex: 1; /* Fill remaining space */
     padding-bottom: 20px; /* Reduced padding since footer is no longer sticky */
+    overflow-y: auto; /* Add scrollbar when content overflows */
 }
 
 .wallpaper {
@@ -57,10 +59,10 @@ body {
 
 img {
     width: 300px;
-    height: auto;
+    height: 200px;
     border-radius: 10px;
     cursor: pointer;
-    object-fit: cover;
+    object-fit: contain;
 }
 
 #pagination {
