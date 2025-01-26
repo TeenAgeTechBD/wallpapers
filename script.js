@@ -1,6 +1,7 @@
 let wallpapers = [];
 let currentPage = 1;
 const wallpapersPerPage = 12; // Number of wallpapers to display per page
+let slideshowInterval = null; // To store the slideshow interval
 
 // Cache for storing fetched wallpapers
 let cache = {
@@ -107,6 +108,107 @@ function updatePagination(data = wallpapers) {
     prevButton.disabled = currentPage === 1;
     nextButton.disabled = currentPage === totalPages;
 }
+
+// Slideshow functionality
+function startSlideshow() {
+    if (slideshowInterval) {
+        clearInterval(slideshowInterval); // Stop existing slideshow
+        slideshowInterval = null;
+        document.getElementById('slideshowButton').textContent = 'Slideshow';
+        document.exitFullscreen(); // Exit fullscreen
+        document.body.removeChild(document.getElementById('slideshow-container')); // Remove slideshow container
+        document.body.style.cursor = 'auto'; // Restore cursor
+        return;
+    }
+
+    // Enter fullscreen mode
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => {
+            console.error('Error attempting to enable fullscreen mode:', err);
+        });
+    }
+
+    // Start the slideshow
+    let currentIndex = 0;
+    const slideshowContainer = document.createElement('div');
+    slideshowContainer.id = 'slideshow-container';
+    slideshowContainer.style.position = 'fixed';
+    slideshowContainer.style.top = '0';
+    slideshowContainer.style.left = '0';
+    slideshowContainer.style.width = '100%';
+    slideshowContainer.style.height = '100%';
+    slideshowContainer.style.backgroundColor = '#2e3440';
+    slideshowContainer.style.zIndex = '10000';
+    slideshowContainer.style.display = 'flex';
+    slideshowContainer.style.justifyContent = 'center';
+    slideshowContainer.style.alignItems = 'center';
+    slideshowContainer.style.overflow = 'hidden';
+    document.body.appendChild(slideshowContainer);
+
+    const imgElement = document.createElement('img');
+    imgElement.style.width = '100%';
+    imgElement.style.height = '100%';
+    imgElement.style.objectFit = 'cover'; // Ensure the image covers the entire screen
+    imgElement.style.borderRadius = '0'; // Remove border radius for fullscreen
+    slideshowContainer.appendChild(imgElement);
+
+    // Function to load the next wallpaper
+    const loadNextWallpaper = () => {
+        if (currentIndex >= wallpapers.length) {
+            currentIndex = 0; // Loop back to the first wallpaper
+        }
+        const wallpaper = wallpapers[currentIndex];
+        imgElement.src = wallpaper.download_url; // Load the high-res image directly
+        imgElement.alt = wallpaper.name;
+        currentIndex++;
+    };
+
+    // Load the first wallpaper immediately
+    loadNextWallpaper();
+
+    // Change wallpaper every 5 seconds
+    slideshowInterval = setInterval(loadNextWallpaper, 5000);
+
+    // Hide cursor during slideshow
+    document.body.style.cursor = 'none';
+
+    // Open image in a new tab when clicked
+    imgElement.addEventListener('click', () => {
+        window.open(imgElement.src, '_blank');
+    });
+
+    // Show popup after entering fullscreen
+    const popup = document.createElement('div');
+    popup.id = 'slideshow-popup';
+    popup.textContent = 'Press CTRL+R to exit slideshow';
+    document.body.appendChild(popup);
+
+    // Display the popup
+    popup.style.display = 'block';
+
+    // Hide the popup after 2 seconds
+    setTimeout(() => {
+        popup.style.display = 'none';
+        document.body.removeChild(popup); // Remove popup from DOM
+    }, 2000);
+
+    // Update button text
+    document.getElementById('slideshowButton').textContent = 'Stop Slideshow';
+}
+
+// Event listener for CTRL+R to exit slideshow
+document.addEventListener('keydown', (event) => {
+    if (event.ctrlKey && event.key === 'r') {
+        if (slideshowInterval) {
+            clearInterval(slideshowInterval); // Stop slideshow
+            slideshowInterval = null;
+            document.getElementById('slideshowButton').textContent = 'Slideshow';
+            document.exitFullscreen(); // Exit fullscreen
+            document.body.removeChild(document.getElementById('slideshow-container')); // Remove slideshow container
+            document.body.style.cursor = 'auto'; // Restore cursor
+        }
+    }
+});
 
 // Event listeners
 document.getElementById('searchInput').addEventListener('keydown', function (event) {

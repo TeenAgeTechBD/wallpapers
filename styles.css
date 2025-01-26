@@ -8,7 +8,6 @@ body {
     padding: 0;
     color: #eceff4;
     min-height: 100vh;
-    position: relative;
 }
 
 #search-bar {
@@ -26,7 +25,7 @@ body {
     color: #eceff4;
 }
 
-#searchButton {
+#searchButton, #slideshowButton {
     padding: 10px 20px;
     margin-left: 10px;
     border-radius: 5px;
@@ -36,7 +35,7 @@ body {
     cursor: pointer;
 }
 
-#searchButton:hover {
+#searchButton:hover, #slideshowButton:hover {
     background-color: #81a1c1;
 }
 
@@ -45,7 +44,7 @@ body {
     flex-wrap: wrap;
     justify-content: center;
     width: 100%;
-    padding-bottom: 80px; /* Increased padding to avoid footer overlap */
+    padding-bottom: 20px; /* Reduced padding since footer is no longer sticky */
 }
 
 .wallpaper {
@@ -91,13 +90,73 @@ img {
 }
 
 footer {
-    position: fixed;
-    bottom: 0;
     width: 100%;
     background-color: #3b4252;
     text-align: center;
     padding: 10px 0;
     color: #eceff4;
     font-size: 14px;
-    z-index: 1000; /* Ensure footer is above other content */
+    margin-top: auto; /* Push footer to the bottom */
+}
+
+/* Slideshow container */
+#slideshow-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #2e3440;
+    z-index: 10000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    cursor: none; /* Hide cursor during slideshow */
+}
+
+#slideshow-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Ensure the image covers the entire screen */
+    border-radius: 0; /* Remove border radius for fullscreen */
+    cursor: pointer; /* Show pointer when hovering over the image */
+}
+
+/* Popup styles */
+#slideshow-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 15px 25px;
+    border-radius: 10px;
+    font-size: 16px;
+    z-index: 10001; /* Above the slideshow container */
+    display: none; /* Hidden by default */
+    animation: fadeOut 2s forwards; /* Fade out after 2 seconds */
+}
+
+@keyframes fadeOut {
+    0% {
+        opacity: 1;
+    }
+    90% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+        display: none;
+    }
+}
+
+/* Hide scrollbar during fullscreen */
+:fullscreen #slideshow-container {
+    overflow: hidden;
+}
+
+:fullscreen body {
+    overflow: hidden;
 }
