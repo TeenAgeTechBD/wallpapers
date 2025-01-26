@@ -2,7 +2,7 @@
 
 Welcome to TATBD's Ultimate Wallpapers repository! This project showcases a collection of beautiful wallpapers that you can browse and download directly from our GitHub repository.
 
-### Tips
+## Tips
 - Search `ptkspecial` for editor picks ✨
 - Click any image while slideshow to download
 - Share and enjoy
