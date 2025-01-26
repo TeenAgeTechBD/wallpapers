@@ -160,3 +160,23 @@ footer {
 :fullscreen body {
     overflow: hidden;
 }
+
+/* Custom scrollbar styles */
+::-webkit-scrollbar {
+    width: 12px;
+}
+
+::-webkit-scrollbar-track {
+    background: #3b4252;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #5e81ac;
+    border-radius: 10px;
+    border: 3px solid #3b4252;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: #81a1c1;
+}
