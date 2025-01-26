@@ -134,7 +134,7 @@ document.getElementById('searchInput').addEventListener('input', function() {
 document.getElementById('clearButton').addEventListener('click', function() {
     const searchInput = document.getElementById('searchInput');
     searchInput.value = '';
-    searchInput.dispatchEvent(new Event('input')); // Trigger input event to hide the clear button
+    searchInput.dispatchEvent(new Event('input'));
 });
 
 
