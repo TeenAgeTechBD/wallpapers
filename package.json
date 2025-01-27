@@ -7,7 +7,6 @@
   "version": "1.0.0",
   "description": "Welcome to TATBD's Ultimate Wallpapers repository! This project showcases a collection of beautiful wallpapers that you can browse and download directly from our GitHub repository.",
   "main": "script.js",
-  "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js"
