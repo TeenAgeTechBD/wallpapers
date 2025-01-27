@@ -274,6 +274,7 @@ footer {
     border: none;
     cursor: pointer;
     z-index: 10001;
+    text-decoration: none;
 }
 
 .downloadBtn:hover::before {
@@ -282,8 +283,8 @@ footer {
 
 .downloadBtn-content {
     position: relative;
-    top: 15px;
     z-index: 1;
+    top: 15px;
 }
 
 .downloadBtn::before {

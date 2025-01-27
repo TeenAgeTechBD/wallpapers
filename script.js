@@ -120,10 +120,20 @@ function openFullscreen(url) {
     const fullscreenContainer = document.getElementById('fullscreen-container');
     const imgElement = document.getElementById('fullscreen-image');
     const closeButton = document.getElementById('closeButton');
-    const downloadButton = document.getElementById('downloadButton');
+    const downloadButton = document.getElementById('downloadBtn');
 
     imgElement.src = url;
-    downloadButton.href = url;
+
+    fetch(url)
+        .then(response => response.blob())
+        .then(blob => {
+            const blobUrl = URL.createObjectURL(blob);
+            downloadButton.href = blobUrl;
+
+            const filename = url.split('/').pop();
+            downloadButton.download = filename;
+        })
+        .catch(error => console.error('Error fetching the image:', error));
 
     fullscreenContainer.style.display = 'block';
 
