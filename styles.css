@@ -244,7 +244,7 @@ footer {
     cursor: pointer;
 }
 
-#closeButton {
+#closeButton, #closeSlideshowButton {
     position: absolute;
     top: 20px;
     right: 20px;
@@ -256,7 +256,7 @@ footer {
     z-index: 10001;
 }
 
-#closeButton:hover {
+#closeButton:hover, #closeSlideshowButton:hover {
     color: #ff0000;
 }
 
@@ -283,8 +283,8 @@ footer {
 
 .downloadBtn-content {
     position: relative;
-    z-index: 1;
     top: 15px;
+    z-index: 1;
 }
 
 .downloadBtn::before {
