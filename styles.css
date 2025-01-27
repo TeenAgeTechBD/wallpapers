@@ -282,6 +282,7 @@ footer {
 
 .downloadBtn-content {
     position: relative;
+    top: 15px;
     z-index: 1;
 }
 
