@@ -134,6 +134,13 @@ function openFullscreen(url) {
     };
     fullscreenContainer.appendChild(closeButton);
 
+    const downloadButton = document.createElement('a');
+    downloadButton.href = url;
+    downloadButton.download = '';
+    downloadButton.classList.add('downloadBtn');
+    downloadButton.innerHTML = '<span class="downloadBtn-content">Download</span>';
+    fullscreenContainer.appendChild(downloadButton);
+
     fullscreenContainer.requestFullscreen().catch(err => {
         console.error('Error attempting to enable fullscreen mode:', err);
     });
