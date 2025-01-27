@@ -43,7 +43,7 @@ window.addEventListener('resize', () => {
 });
 
 async function loadWallpapers() {
-    const apiUrl = '/wallpapers';
+    const apiUrl = '/api/wallpapers';
 
     try {
         const response = await fetch(apiUrl);
