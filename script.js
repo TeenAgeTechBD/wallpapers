@@ -117,33 +117,25 @@ function displayWallpapers(files) {
 }
 
 function openFullscreen(url) {
-    const fullscreenContainer = document.createElement('div');
-    fullscreenContainer.id = 'fullscreen-container';
-    document.body.appendChild(fullscreenContainer);
+    const fullscreenContainer = document.getElementById('fullscreen-container');
+    const imgElement = document.getElementById('fullscreen-image');
+    const closeButton = document.getElementById('closeButton');
+    const downloadButton = document.getElementById('downloadButton');
 
-    const imgElement = document.createElement('img');
     imgElement.src = url;
-    fullscreenContainer.appendChild(imgElement);
-
-    const closeButton = document.createElement('button');
-    closeButton.id = 'closeButton';
-    closeButton.textContent = '✖';
-    closeButton.onclick = () => {
-        document.exitFullscreen();
-        document.body.removeChild(fullscreenContainer);
-    };
-    fullscreenContainer.appendChild(closeButton);
-
-    const downloadButton = document.createElement('a');
     downloadButton.href = url;
-    downloadButton.download = '';
-    downloadButton.classList.add('downloadBtn');
-    downloadButton.innerHTML = '<span class="downloadBtn-content">Download</span>';
-    fullscreenContainer.appendChild(downloadButton);
+
+    fullscreenContainer.style.display = 'block';
 
     fullscreenContainer.requestFullscreen().catch(err => {
         console.error('Error attempting to enable fullscreen mode:', err);
     });
+}
+
+function closeFullscreen() {
+    const fullscreenContainer = document.getElementById('fullscreen-container');
+    fullscreenContainer.style.display = 'none';
+    document.exitFullscreen();
 }
 
 function searchWallpapers() {
@@ -199,7 +191,7 @@ function startSlideshow() {
         slideshowInterval = null;
         document.getElementById('slideshowButton').textContent = 'Slideshow';
         document.exitFullscreen();
-        document.body.removeChild(document.getElementById('slideshow-container'));
+        document.getElementById('slideshow-container').style.display = 'none';
         document.body.style.cursor = 'auto';
         return;
     }
@@ -211,25 +203,11 @@ function startSlideshow() {
     }
 
     let currentIndex = 0;
-    const slideshowContainer = document.createElement('div');
-    slideshowContainer.id = 'slideshow-container';
-    document.body.appendChild(slideshowContainer);
+    const slideshowContainer = document.getElementById('slideshow-container');
+    const imgElement = document.getElementById('slideshow-image');
+    const closeButton = document.getElementById('closeSlideshowButton');
 
-    const imgElement = document.createElement('img');
-    slideshowContainer.appendChild(imgElement);
-
-    const closeButton = document.createElement('button');
-    closeButton.id = 'closeButton';
-    closeButton.textContent = '✖';
-    closeButton.onclick = () => {
-        clearInterval(slideshowInterval);
-        slideshowInterval = null;
-        document.getElementById('slideshowButton').textContent = 'Slideshow';
-        document.exitFullscreen();
-        document.body.removeChild(slideshowContainer);
-        document.body.style.cursor = 'auto';
-    };
-    slideshowContainer.appendChild(closeButton);
+    slideshowContainer.style.display = 'block';
 
     const loadNextWallpaper = () => {
         if (currentIndex >= wallpapers.length) {
@@ -251,30 +229,29 @@ function startSlideshow() {
         window.open(imgElement.src, '_blank');
     });
 
-    const popup = document.createElement('div');
-    popup.id = 'slideshow-popup';
-    popup.textContent = 'Press CTRL+R to exit slideshow';
-    document.body.appendChild(popup);
-
+    const popup = document.getElementById('slideshow-popup');
     popup.style.display = 'block';
 
     setTimeout(() => {
         popup.style.display = 'none';
-        document.body.removeChild(popup);
     }, 2000);
 
     document.getElementById('slideshowButton').textContent = 'Stop Slideshow';
 }
 
+function stopSlideshow() {
+    clearInterval(slideshowInterval);
+    slideshowInterval = null;
+    document.getElementById('slideshowButton').textContent = 'Slideshow';
+    document.exitFullscreen();
+    document.getElementById('slideshow-container').style.display = 'none';
+    document.body.style.cursor = 'auto';
+}
+
 document.addEventListener('keydown', (event) => {
     if (event.ctrlKey && event.key === 'r') {
         if (slideshowInterval) {
-            clearInterval(slideshowInterval);
-            slideshowInterval = null;
-            document.getElementById('slideshowButton').textContent = 'Slideshow';
-            document.exitFullscreen();
-            document.body.removeChild(document.getElementById('slideshow-container'));
-            document.body.style.cursor = 'auto';
+            stopSlideshow();
         }
     }
 });
