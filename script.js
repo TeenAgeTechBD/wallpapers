@@ -94,16 +94,48 @@ function displayWallpapers(files) {
         const imgElement = document.createElement('img');
         imgElement.src = file.download_url;
         imgElement.alt = file.name;
+        imgElement.loading = 'lazy'; // Add lazy loading attribute
 
-        const downloadLink = document.createElement('a');
-        downloadLink.href = file.download_url;
-        downloadLink.download = file.name;
-        downloadLink.appendChild(imgElement);
+        imgElement.onclick = () => {
+            openFullscreen(file.download_url);
+        };
+
+        const fullscreenButton = document.createElement('button');
+        fullscreenButton.classList.add('fullscreen-button');
+        fullscreenButton.textContent = '⛶';
+        fullscreenButton.onclick = (event) => {
+            event.stopPropagation(); // Prevent the image click event from firing
+            openFullscreen(file.download_url);
+        };
 
         const div = document.createElement('div');
         div.classList.add('wallpaper');
-        div.appendChild(downloadLink);
+        div.appendChild(imgElement);
+        div.appendChild(fullscreenButton);
         gallery.appendChild(div);
+    });
+}
+
+function openFullscreen(url) {
+    const fullscreenContainer = document.createElement('div');
+    fullscreenContainer.id = 'fullscreen-container';
+    document.body.appendChild(fullscreenContainer);
+
+    const imgElement = document.createElement('img');
+    imgElement.src = url;
+    fullscreenContainer.appendChild(imgElement);
+
+    const closeButton = document.createElement('button');
+    closeButton.id = 'closeButton';
+    closeButton.textContent = '✖';
+    closeButton.onclick = () => {
+        document.exitFullscreen();
+        document.body.removeChild(fullscreenContainer);
+    };
+    fullscreenContainer.appendChild(closeButton);
+
+    fullscreenContainer.requestFullscreen().catch(err => {
+        console.error('Error attempting to enable fullscreen mode:', err);
     });
 }
 
@@ -178,6 +210,19 @@ function startSlideshow() {
 
     const imgElement = document.createElement('img');
     slideshowContainer.appendChild(imgElement);
+
+    const closeButton = document.createElement('button');
+    closeButton.id = 'closeButton';
+    closeButton.textContent = '✖';
+    closeButton.onclick = () => {
+        clearInterval(slideshowInterval);
+        slideshowInterval = null;
+        document.getElementById('slideshowButton').textContent = 'Slideshow';
+        document.exitFullscreen();
+        document.body.removeChild(slideshowContainer);
+        document.body.style.cursor = 'auto';
+    };
+    slideshowContainer.appendChild(closeButton);
 
     const loadNextWallpaper = () => {
         if (currentIndex >= wallpapers.length) {
