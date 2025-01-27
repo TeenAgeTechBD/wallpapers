@@ -43,17 +43,23 @@ window.addEventListener('resize', () => {
 });
 
 async function loadWallpapers() {
-    const apiUrl = '/api/wallpapers';
+    const repoUrl = 'https://api.github.com/repos/TeenAgeTechBD/wallpapers/contents/wallpapers';
+
+    if (cache.data && Date.now() - cache.timestamp < cache.cacheDuration) {
+        wallpapers = cache.data;
+        displayWallpapers(getPaginatedWallpapers(currentPage));
+        updatePagination();
+        return;
+    }
 
     try {
-        const response = await fetch(apiUrl);
+        const response = await fetch(repoUrl);
         if (!response.ok) throw new Error('Failed to fetch wallpapers');
         const files = await response.json();
 
-        wallpapers = files.map(file => ({
-            name: file,
-            download_url: `/wallpapers/${file}`
-        }));
+        wallpapers = files.filter(file =>
+            file.name.endsWith('.jpg') || file.name.endsWith('.jpeg') || file.name.endsWith('.png') || file.name.endsWith('.gif')
+        );
 
         cache.data = wallpapers;
         cache.timestamp = Date.now();
