@@ -2,6 +2,7 @@ let wallpapers = [];
 let currentPage = 1;
 let wallpapersPerPage = calculateWallpapersPerPage();
 let slideshowInterval = null;
+let currentSearchResults = null;
 
 let cache = {
     data: null,
@@ -38,8 +39,8 @@ function calculateWallpapersPerPage() {
 
 window.addEventListener('resize', () => {
     wallpapersPerPage = calculateWallpapersPerPage();
-    displayWallpapers(getPaginatedWallpapers(currentPage));
-    updatePagination();
+    displayWallpapers(getPaginatedWallpapers(currentPage, currentSearchResults || wallpapers));
+    updatePagination(currentSearchResults || wallpapers);
 });
 
 async function loadWallpapers() {
@@ -58,7 +59,7 @@ async function loadWallpapers() {
         const files = await response.json();
 
         wallpapers = files.filter(file =>
-            file.name.endsWith('.jpg') || file.name.endsWith('.jpeg') || file.name.endsWith('.png')
+            file.name.endsWith('.jpg') || file.name.endsWith('.jpeg') || file.name.endsWith('.png') || file.name.endsWith('.gif')
         );
 
         cache.data = wallpapers;
@@ -94,26 +95,93 @@ function displayWallpapers(files) {
         const imgElement = document.createElement('img');
         imgElement.src = file.download_url;
         imgElement.alt = file.name;
+        imgElement.loading = 'lazy';
 
-        const downloadLink = document.createElement('a');
-        downloadLink.href = file.download_url;
-        downloadLink.download = file.name;
-        downloadLink.appendChild(imgElement);
+        imgElement.onclick = () => {
+            openFullscreen(file.download_url);
+        };
+
+        const fullscreenButton = document.createElement('button');
+        fullscreenButton.classList.add('fullscreen-button');
+        fullscreenButton.textContent = '⛶';
+        fullscreenButton.onclick = (event) => {
+            event.stopPropagation();
+            openFullscreen(file.download_url);
+        };
 
         const div = document.createElement('div');
         div.classList.add('wallpaper');
-        div.appendChild(downloadLink);
+        div.appendChild(imgElement);
+        div.appendChild(fullscreenButton);
         gallery.appendChild(div);
     });
 }
 
+function openFullscreen(url) {
+    const fullscreenContainer = document.getElementById('fullscreen-container');
+    const imgElement = document.getElementById('fullscreen-image');
+    const closeButton = document.getElementById('closeButton');
+    const downloadButton = document.getElementById('downloadBtn');
+
+    imgElement.src = url;
+
+    fetch(url)
+        .then(response => response.blob())
+        .then(blob => {
+            const blobUrl = URL.createObjectURL(blob);
+            downloadButton.href = blobUrl;
+
+            const filename = url.split('/').pop();
+            downloadButton.download = filename;
+        })
+        .catch(error => console.error('Error fetching the image:', error));
+
+    fullscreenContainer.style.display = 'block';
+
+    fullscreenContainer.requestFullscreen().catch(err => {
+        console.error('Error attempting to enable fullscreen mode:', err);
+    });
+}
+
+function closeFullscreen() {
+    const fullscreenContainer = document.getElementById('fullscreen-container');
+    fullscreenContainer.style.display = 'none';
+    document.exitFullscreen();
+
+    displayWallpapers(getPaginatedWallpapers(currentPage, currentSearchResults || wallpapers));
+    updatePagination(currentSearchResults || wallpapers);
+}
+
 function searchWallpapers() {
     const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-    const filteredWallpapers = wallpapers.filter(file => file.name.toLowerCase().includes(searchTerm));
+    currentSearchResults = wallpapers.filter(file => file.name.toLowerCase().includes(searchTerm));
     currentPage = 1;
-    displayWallpapers(getPaginatedWallpapers(currentPage, filteredWallpapers));
-    updatePagination(filteredWallpapers);
+    displayWallpapers(getPaginatedWallpapers(currentPage, currentSearchResults));
+    updatePagination(currentSearchResults);
 }
+
+function clearSearch() {
+    document.getElementById('searchInput').value = '';
+    currentSearchResults = null;
+    currentPage = 1;
+    displayWallpapers(getPaginatedWallpapers(currentPage));
+    updatePagination();
+}
+
+document.getElementById('searchInput').addEventListener('input', function() {
+    const clearButton = document.getElementById('clearButton');
+    if (this.value.length > 0) {
+        clearButton.style.display = 'block';
+    } else {
+        clearButton.style.display = 'none';
+    }
+});
+
+document.getElementById('clearButton').addEventListener('click', function() {
+    const searchInput = document.getElementById('searchInput');
+    searchInput.value = '';
+    searchInput.dispatchEvent(new Event('input'));
+});
 
 function getPaginatedWallpapers(page, data = wallpapers) {
     const startIndex = (page - 1) * wallpapersPerPage;
@@ -138,7 +206,7 @@ function startSlideshow() {
         slideshowInterval = null;
         document.getElementById('slideshowButton').textContent = 'Slideshow';
         document.exitFullscreen();
-        document.body.removeChild(document.getElementById('slideshow-container'));
+        document.getElementById('slideshow-container').style.display = 'none';
         document.body.style.cursor = 'auto';
         return;
     }
@@ -150,41 +218,34 @@ function startSlideshow() {
     }
 
     let currentIndex = 0;
-    const slideshowContainer = document.createElement('div');
-    slideshowContainer.id = 'slideshow-container';
-    slideshowContainer.style.position = 'fixed';
-    slideshowContainer.style.top = '0';
-    slideshowContainer.style.left = '0';
-    slideshowContainer.style.width = '100%';
-    slideshowContainer.style.height = '100%';
-    slideshowContainer.style.backgroundColor = '#2e3440';
-    slideshowContainer.style.zIndex = '10000';
-    slideshowContainer.style.display = 'flex';
-    slideshowContainer.style.justifyContent = 'center';
-    slideshowContainer.style.alignItems = 'center';
-    slideshowContainer.style.overflow = 'hidden';
-    document.body.appendChild(slideshowContainer);
+    const slideshowContainer = document.getElementById('slideshow-container');
+    const imgElement = document.getElementById('slideshow-image');
+    const closeButton = document.getElementById('closeSlideshowButton');
 
-    const imgElement = document.createElement('img');
-    imgElement.style.width = '100%';
-    imgElement.style.height = '100%';
-    imgElement.style.objectFit = 'cover';
-    imgElement.style.borderRadius = '0';
-    slideshowContainer.appendChild(imgElement);
+    slideshowContainer.style.display = 'block';
 
     const loadNextWallpaper = () => {
         if (currentIndex >= wallpapers.length) {
             currentIndex = 0;
         }
         const wallpaper = wallpapers[currentIndex];
+        imgElement.classList.remove('fade-in');
         imgElement.src = wallpaper.download_url;
         imgElement.alt = wallpaper.name;
         currentIndex++;
+        setTimeout(() => {
+            imgElement.classList.add('fade-in');
+        }, 50);
     };
 
     loadNextWallpaper();
 
-    slideshowInterval = setInterval(loadNextWallpaper, 5000);
+    slideshowInterval = setInterval(() => {
+        imgElement.classList.remove('fade-in');
+        setTimeout(() => {
+            loadNextWallpaper();
+        }, 950);
+    }, 6000);
 
     document.body.style.cursor = 'none';
 
@@ -192,33 +253,27 @@ function startSlideshow() {
         window.open(imgElement.src, '_blank');
     });
 
-    const popup = document.createElement('div');
-    popup.id = 'slideshow-popup';
-    popup.textContent = 'Press CTRL+R to exit slideshow';
-    document.body.appendChild(popup);
-
-    popup.style.display = 'block';
-
     setTimeout(() => {
         popup.style.display = 'none';
-        document.body.removeChild(popup);
     }, 2000);
 
     document.getElementById('slideshowButton').textContent = 'Stop Slideshow';
 }
 
-document.addEventListener('keydown', (event) => {
-    if (event.ctrlKey && event.key === 'r') {
-        if (slideshowInterval) {
-            clearInterval(slideshowInterval);
-            slideshowInterval = null;
-            document.getElementById('slideshowButton').textContent = 'Slideshow';
-            document.exitFullscreen();
-            document.body.removeChild(document.getElementById('slideshow-container'));
-            document.body.style.cursor = 'auto';
-        }
+function stopSlideshow() {
+    clearInterval(slideshowInterval);
+    slideshowInterval = null;
+    document.getElementById('slideshowButton').textContent = 'Slideshow';
+    document.exitFullscreen();
+    document.getElementById('slideshow-container').style.display = 'none';
+    document.body.style.cursor = 'auto';
+
+    if (document.fullscreenElement) {
+        document.exitFullscreen().catch(err => {
+            console.error('Error attempting to exit fullscreen mode:', err);
+        });
     }
-});
+}
 
 document.getElementById('searchInput').addEventListener('keydown', function (event) {
     if (event.key === 'Enter') {
@@ -229,17 +284,17 @@ document.getElementById('searchInput').addEventListener('keydown', function (eve
 document.getElementById('prevButton').addEventListener('click', () => {
     if (currentPage > 1) {
         currentPage--;
-        displayWallpapers(getPaginatedWallpapers(currentPage));
-        updatePagination();
+        displayWallpapers(getPaginatedWallpapers(currentPage, currentSearchResults || wallpapers));
+        updatePagination(currentSearchResults || wallpapers);
     }
 });
 
 document.getElementById('nextButton').addEventListener('click', () => {
-    const totalPages = Math.ceil(wallpapers.length / wallpapersPerPage);
+    const totalPages = Math.ceil((currentSearchResults || wallpapers).length / wallpapersPerPage);
     if (currentPage < totalPages) {
         currentPage++;
-        displayWallpapers(getPaginatedWallpapers(currentPage));
-        updatePagination();
+        displayWallpapers(getPaginatedWallpapers(currentPage, currentSearchResults || wallpapers));
+        updatePagination(currentSearchResults || wallpapers);
     }
 });
 

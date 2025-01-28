@@ -3,23 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TATBD's Ultimate Wallpaper Repo</title>
+    <title>TATBD's Ultimate Wallpaper</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="logo.png" type="image/png" />
 </head>
 <body>
-    <div id="search-bar">
-        <input type="text" id="searchInput" placeholder="Search for wallpapers..." aria-label="Search for wallpapers..." />
-        <button id="searchButton" onclick="searchWallpapers()">Search</button>
-        <button id="slideshowButton" onclick="startSlideshow()">Slideshow</button>
-    </div>
+    <header>
+        <div id="header-content">
+            <div id="logo-container">
+                <a href="https://teenagetechbd.github.io/" id="logo-link">
+                    <img src="logo-2.png" alt="Logo" id="logo" />
+                </a>
+            </div>
+            <div id="search-bar">
+                <div class="search-container">
+                    <input type="text" id="searchInput" placeholder="Search for wallpapers..." aria-label="Search for wallpapers..." />
+                    <button id="clearButton" onclick="clearSearch()">✖</button>
+                </div>
+                <button id="searchButton" onclick="searchWallpapers()">Search</button>
+                <button id="slideshowButton" onclick="startSlideshow()">Slideshow</button>
+            </div>
+        </div>
+    </header>
     <div id="gallery"></div>
     <div id="pagination">
         <button id="prevButton" disabled>Previous</button>
-        <span id="pageInfo">Page 1 of 1</span>
+        <span id="pageInfo"></span>
         <button id="nextButton" disabled>Next</button>
     </div>
+    <div id="fullscreen-container" style="display:none;">
+        <img id="fullscreen-image" src="" alt="" />
+        <button id="closeButton" onclick="closeFullscreen()">✖</button>
+        <a id="downloadBtn" href="" download="" class="downloadBtn">
+            <span class="downloadBtn-content">Download</span>
+        </a>
+    </div>
+    <div id="slideshow-container" style="display:none;">
+        <img id="slideshow-image" src="" alt="" />
+        <button id="closeSlideshowButton" onclick="stopSlideshow()">✖</button>
+    </div>
     <footer>
-        <p>Copyright © <span id="currentYear"></span> All rights reserved by various artists.</p>
+        <p>Copyright © 2023 - <span id="currentYear"></span> All rights reserved by various artists.</p>
     </footer>
     <script src="script.js"></script>
 </body>
