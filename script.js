@@ -2,6 +2,7 @@ let wallpapers = [];
 let currentPage = 1;
 let wallpapersPerPage = calculateWallpapersPerPage();
 let slideshowInterval = null;
+let currentSearchResults = null;
 
 let cache = {
     data: null,
@@ -38,8 +39,8 @@ function calculateWallpapersPerPage() {
 
 window.addEventListener('resize', () => {
     wallpapersPerPage = calculateWallpapersPerPage();
-    displayWallpapers(getPaginatedWallpapers(currentPage));
-    updatePagination();
+    displayWallpapers(getPaginatedWallpapers(currentPage, currentSearchResults || wallpapers));
+    updatePagination(currentSearchResults || wallpapers);
 });
 
 async function loadWallpapers() {
@@ -146,18 +147,22 @@ function closeFullscreen() {
     const fullscreenContainer = document.getElementById('fullscreen-container');
     fullscreenContainer.style.display = 'none';
     document.exitFullscreen();
+
+    displayWallpapers(getPaginatedWallpapers(currentPage, currentSearchResults || wallpapers));
+    updatePagination(currentSearchResults || wallpapers);
 }
 
 function searchWallpapers() {
     const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-    const filteredWallpapers = wallpapers.filter(file => file.name.toLowerCase().includes(searchTerm));
+    currentSearchResults = wallpapers.filter(file => file.name.toLowerCase().includes(searchTerm));
     currentPage = 1;
-    displayWallpapers(getPaginatedWallpapers(currentPage, filteredWallpapers));
-    updatePagination(filteredWallpapers);
+    displayWallpapers(getPaginatedWallpapers(currentPage, currentSearchResults));
+    updatePagination(currentSearchResults);
 }
 
 function clearSearch() {
     document.getElementById('searchInput').value = '';
+    currentSearchResults = null;
     currentPage = 1;
     displayWallpapers(getPaginatedWallpapers(currentPage));
     updatePagination();
@@ -279,17 +284,17 @@ document.getElementById('searchInput').addEventListener('keydown', function (eve
 document.getElementById('prevButton').addEventListener('click', () => {
     if (currentPage > 1) {
         currentPage--;
-        displayWallpapers(getPaginatedWallpapers(currentPage));
-        updatePagination();
+        displayWallpapers(getPaginatedWallpapers(currentPage, currentSearchResults || wallpapers));
+        updatePagination(currentSearchResults || wallpapers);
     }
 });
 
 document.getElementById('nextButton').addEventListener('click', () => {
-    const totalPages = Math.ceil(wallpapers.length / wallpapersPerPage);
+    const totalPages = Math.ceil((currentSearchResults || wallpapers).length / wallpapersPerPage);
     if (currentPage < totalPages) {
         currentPage++;
-        displayWallpapers(getPaginatedWallpapers(currentPage));
-        updatePagination();
+        displayWallpapers(getPaginatedWallpapers(currentPage, currentSearchResults || wallpapers));
+        updatePagination(currentSearchResults || wallpapers);
     }
 });
 
