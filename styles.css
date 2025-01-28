@@ -25,12 +25,13 @@ header {
     align-items: center;
     width: 100%;
     max-width: 1200px;
+    justify-content: space-between;
 }
 
 #logo-container {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     margin-right: 20px;
 }
 
@@ -87,6 +88,7 @@ header {
     background-color: #5e81ac;
     color: #eceff4;
     cursor: pointer;
+    outline: none;
 }
 
 #searchButton:hover, #slideshowButton:hover {
@@ -219,6 +221,15 @@ footer {
     z-index: 10001;
     display: none;
     animation: fadeOut 2s forwards;
+}
+
+#slideshow-image {
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+}
+
+#slideshow-image.fade-in {
+    opacity: 1;
 }
 
 #fullscreen-container {

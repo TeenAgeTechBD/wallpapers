@@ -94,7 +94,7 @@ function displayWallpapers(files) {
         const imgElement = document.createElement('img');
         imgElement.src = file.download_url;
         imgElement.alt = file.name;
-        imgElement.loading = 'lazy'; // Add lazy loading attribute
+        imgElement.loading = 'lazy';
 
         imgElement.onclick = () => {
             openFullscreen(file.download_url);
@@ -104,7 +104,7 @@ function displayWallpapers(files) {
         fullscreenButton.classList.add('fullscreen-button');
         fullscreenButton.textContent = '⛶';
         fullscreenButton.onclick = (event) => {
-            event.stopPropagation(); // Prevent the image click event from firing
+            event.stopPropagation();
             openFullscreen(file.download_url);
         };
 
@@ -224,23 +224,29 @@ function startSlideshow() {
             currentIndex = 0;
         }
         const wallpaper = wallpapers[currentIndex];
+        imgElement.classList.remove('fade-in');
         imgElement.src = wallpaper.download_url;
         imgElement.alt = wallpaper.name;
         currentIndex++;
+        setTimeout(() => {
+            imgElement.classList.add('fade-in');
+        }, 50);
     };
 
     loadNextWallpaper();
 
-    slideshowInterval = setInterval(loadNextWallpaper, 5000);
+    slideshowInterval = setInterval(() => {
+        imgElement.classList.remove('fade-in');
+        setTimeout(() => {
+            loadNextWallpaper();
+        }, 950);
+    }, 6000);
 
     document.body.style.cursor = 'none';
 
     imgElement.addEventListener('click', () => {
         window.open(imgElement.src, '_blank');
     });
-
-    const popup = document.getElementById('slideshow-popup');
-    popup.style.display = 'block';
 
     setTimeout(() => {
         popup.style.display = 'none';
@@ -256,15 +262,13 @@ function stopSlideshow() {
     document.exitFullscreen();
     document.getElementById('slideshow-container').style.display = 'none';
     document.body.style.cursor = 'auto';
-}
 
-document.addEventListener('keydown', (event) => {
-    if (event.ctrlKey && event.key === 'r') {
-        if (slideshowInterval) {
-            stopSlideshow();
-        }
+    if (document.fullscreenElement) {
+        document.exitFullscreen().catch(err => {
+            console.error('Error attempting to exit fullscreen mode:', err);
+        });
     }
-});
+}
 
 document.getElementById('searchInput').addEventListener('keydown', function (event) {
     if (event.key === 'Enter') {
