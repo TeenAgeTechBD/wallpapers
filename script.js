@@ -120,7 +120,6 @@ function displayWallpapers(files) {
 function openFullscreen(url) {
     const fullscreenContainer = document.getElementById('fullscreen-container');
     const imgElement = document.getElementById('fullscreen-image');
-    const closeButton = document.getElementById('closeButton');
     const downloadButton = document.getElementById('downloadBtn');
 
     imgElement.src = url;
@@ -220,7 +219,6 @@ function startSlideshow() {
     let currentIndex = 0;
     const slideshowContainer = document.getElementById('slideshow-container');
     const imgElement = document.getElementById('slideshow-image');
-    const closeButton = document.getElementById('closeSlideshowButton');
 
     slideshowContainer.style.display = 'block';
 
