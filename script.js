@@ -146,7 +146,7 @@ async function loadWallpapers() {
             file.name.endsWith('.jpg') || file.name.endsWith('.jpeg') || file.name.endsWith('.png') || file.name.endsWith('.gif')
         );
 
-        cache.data = wallpapers;
+        cache.data = [...wallpapers];
         cache.timestamp = Date.now();
         shuffleArray(wallpapers);
 
@@ -305,6 +305,17 @@ function searchWallpapers() {
     updatePagination(currentSearchResults);
 }
 
+function showLatestWallpapers() {
+    if (cache.data) {
+        currentSearchResults = [...cache.data].reverse();
+        document.getElementById('searchInput').value = '';
+        document.getElementById('clearButton').classList.remove('visible');
+        currentPage = 1;
+        displayWallpapers(getPaginatedWallpapers(currentPage, currentSearchResults));
+        updatePagination(currentSearchResults);
+    }
+}
+
 function clearSearch() {
     document.getElementById('searchInput').value = '';
     currentSearchResults = null;
@@ -312,19 +323,6 @@ function clearSearch() {
     displayWallpapers(getPaginatedWallpapers(currentPage));
     updatePagination();
 }
-
-document.getElementById('searchInput').addEventListener('input', function() {
-    const clearButton = document.getElementById('clearButton');
-    clearButton.classList.toggle('visible', this.value.length > 0);
-});
-
-document.getElementById('clearButton').addEventListener('click', function() {
-    clearSearch();
-});
-
-document.getElementById('slideshowButton').addEventListener('click', startSlideshow);
-document.getElementById('closeButton').addEventListener('click', closeFullscreen);
-document.getElementById('closeSlideshowButton').addEventListener('click', stopSlideshow);
 
 function getPaginatedWallpapers(page, data = wallpapers) {
     const startIndex = (page - 1) * wallpapersPerPage;
@@ -334,214 +332,141 @@ function getPaginatedWallpapers(page, data = wallpapers) {
 
 function updatePagination(data = wallpapers) {
     const totalPages = Math.ceil(data.length / wallpapersPerPage) || 1;
-    const pageInfo = document.getElementById('pageInfo');
+    const paginationContainer = document.getElementById('pagination');
     const prevButton = document.getElementById('prevButton');
     const nextButton = document.getElementById('nextButton');
-    const paginationEl = document.getElementById('pagination');
+    const pageInfo = document.getElementById('pageInfo');
 
-    if (data.length === 0) {
-        pageInfo.textContent = '';
-        paginationEl.classList.add('pagination-hidden');
+    if (data.length <= wallpapersPerPage) {
+        paginationContainer.classList.add('pagination-hidden');
+        return;
     } else {
-        pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
-        paginationEl.classList.remove('pagination-hidden');
+        paginationContainer.classList.remove('pagination-hidden');
     }
+
+    if (currentPage > totalPages) currentPage = totalPages;
+
+    pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
     prevButton.disabled = currentPage === 1;
     nextButton.disabled = currentPage === totalPages;
 }
 
+// Slideshow Management Engine
 function startSlideshow() {
-    if (slideshowInterval) {
-        stopSlideshow();
-        return;
-    }
-
-    const list = currentSearchResults || wallpapers;
-    if (!list || list.length === 0) {
-        showToast('No wallpapers to show. Load or clear search first.');
-        return;
-    }
-
-    if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen().catch(err => {
-            console.error('Error attempting to enable fullscreen mode:', err);
-        });
-    }
-
+    const data = currentSearchResults || wallpapers;
+    if (!data.length) return;
+    
     let currentIndex = 0;
-    const slideshowContainer = document.getElementById('slideshow-container');
-    const imgElement = document.getElementById('slideshow-image');
+    const container = document.getElementById('slideshow-container');
+    const img = document.getElementById('slideshow-image');
+    const counter = document.getElementById('slideshow-counter');
     const popup = document.getElementById('slideshow-popup');
-    const counterEl = document.getElementById('slideshow-counter');
-
-    slideshowContainer.style.display = 'block';
-    slideshowContainer.setAttribute('aria-hidden', 'false');
-    document.body.style.cursor = 'none';
-
-    let slideshowPaused = false;
+    const dlBtn = document.getElementById('slideshowDownloadBtn');
     const pauseBtn = document.getElementById('slideshowPauseButton');
-    const downloadBtn = document.getElementById('slideshowDownloadBtn');
-    const pauseIcon = pauseBtn.querySelector('.slideshow-btn-icon-pause');
-    const playIcon = pauseBtn.querySelector('.slideshow-btn-icon-play');
 
-    const setPauseButtonState = (paused) => {
-        pauseBtn.setAttribute('data-state', paused ? 'play' : 'pause');
-        pauseBtn.setAttribute('aria-label', paused ? 'Resume slideshow' : 'Pause slideshow');
-        pauseBtn.setAttribute('title', paused ? 'Resume' : 'Pause');
-        if (pauseIcon) pauseIcon.hidden = paused;
-        if (playIcon) playIcon.hidden = !paused;
-    };
-    setPauseButtonState(false);
-
-    const CURSOR_IDLE_MS = 2000;
-    const showCursor = () => {
-        document.body.style.cursor = 'auto';
-        if (slideshowContainer._cursorHideTimeoutId) clearTimeout(slideshowContainer._cursorHideTimeoutId);
-        slideshowContainer._cursorHideTimeoutId = setTimeout(() => {
-            document.body.style.cursor = 'none';
-            slideshowContainer._cursorHideTimeoutId = null;
-        }, CURSOR_IDLE_MS);
-    };
-    slideshowContainer.addEventListener('mousemove', showCursor);
-    slideshowContainer.addEventListener('pointermove', showCursor);
-    slideshowContainer._cursorShow = showCursor;
-
-    const updateCounter = () => {
-        if (counterEl) counterEl.textContent = `${currentIndex} / ${list.length}`;
+    const updateSlideshowView = () => {
+        const item = data[currentIndex];
+        img.classList.remove('fade-in');
+        
+        setTimeout(() => {
+            img.src = item.download_url;
+            img.alt = item.name;
+            img.classList.add('fade-in');
+            counter.textContent = `${currentIndex + 1} / ${data.length}`;
+            
+            img.onclick = () => window.open(item.download_url, '_blank');
+            dlBtn.onclick = () => {
+                const a = document.createElement('a');
+                a.href = item.download_url;
+                a.download = item.name;
+                a.click();
+            };
+        }, 200);
     };
 
-    const loadNextWallpaper = () => {
-        if (currentIndex >= list.length) currentIndex = 0;
-        const wallpaper = list[currentIndex];
-        imgElement.classList.remove('fade-in');
-        imgElement.src = wallpaper.download_url;
-        imgElement.alt = wallpaper.name;
-        currentIndex++;
-        updateCounter();
-        setTimeout(() => imgElement.classList.add('fade-in'), 50);
+    container.style.display = 'flex';
+    container.setAttribute('aria-hidden', 'false');
+    updateSlideshowView();
+    focusTrap(container);
+    
+    setTimeout(() => popup.classList.add('slideshow-popup-hide'), 3000);
+
+    const runInterval = () => {
+        slideshowInterval = setInterval(() => {
+            currentIndex = (currentIndex + 1) % data.length;
+            updateSlideshowView();
+        }, 4000);
     };
+    runInterval();
 
     pauseBtn.onclick = () => {
-        slideshowPaused = !slideshowPaused;
-        if (slideshowPaused) {
-            clearInterval(slideshowInterval);
-            slideshowInterval = null;
-            setPauseButtonState(true);
+        const isPaused = pauseBtn.getAttribute('data-state') === 'play';
+        if (isPaused) {
+            pauseBtn.setAttribute('data-state', 'pause');
+            pauseBtn.querySelector('.slideshow-btn-icon-pause').removeAttribute('hidden');
+            pauseBtn.querySelector('.slideshow-btn-icon-play').setAttribute('hidden', '');
+            runInterval();
         } else {
-            slideshowInterval = setInterval(() => {
-                imgElement.classList.remove('fade-in');
-                setTimeout(loadNextWallpaper, 950);
-            }, 6000);
-            setPauseButtonState(false);
+            pauseBtn.setAttribute('data-state', 'play');
+            pauseBtn.querySelector('.slideshow-btn-icon-pause').setAttribute('hidden', '');
+            pauseBtn.querySelector('.slideshow-btn-icon-play').removeAttribute('hidden');
+            clearInterval(slideshowInterval);
         }
     };
 
-    downloadBtn.onclick = (e) => {
-        e.preventDefault();
-        const url = imgElement.src;
-        if (!url) return;
-        fetch(url)
-            .then((res) => res.blob())
-            .then((blob) => {
-                const blobUrl = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = blobUrl;
-                a.download = (imgElement.alt || url.split('/').pop()).split('/').pop();
-                a.click();
-                URL.revokeObjectURL(blobUrl);
-            })
-            .catch(() => showToast('Download failed. Try opening in new tab.'));
+    container._esc = (e) => {
+        if (e.key === 'Escape') stopSlideshow();
     };
-
-    loadNextWallpaper();
-    if (popup) {
-        popup.style.display = 'block';
-        popup.classList.remove('slideshow-popup-hide');
-        setTimeout(() => {
-            if (popup) {
-                popup.classList.add('slideshow-popup-hide');
-                setTimeout(() => { popup.style.display = 'none'; }, 400);
-            }
-        }, 2500);
-    }
-
-    slideshowInterval = setInterval(() => {
-        imgElement.classList.remove('fade-in');
-        setTimeout(loadNextWallpaper, 950);
-    }, 6000);
-
-    const clickHandler = () => window.open(imgElement.src, '_blank');
-    imgElement.addEventListener('click', clickHandler);
-    slideshowContainer._clickHandler = clickHandler;
-
-    focusTrap(slideshowContainer);
-    const escapeHandler = (e) => {
-        if (e.key === 'Escape') {
-            document.removeEventListener('keydown', escapeHandler);
-            stopSlideshow();
-        }
-    };
-    document.addEventListener('keydown', escapeHandler);
-    slideshowContainer._escapeHandler = escapeHandler;
-
-    document.getElementById('slideshowButton').textContent = 'Stop Slideshow';
+    document.addEventListener('keydown', container._esc);
+    container.requestFullscreen().catch(() => {});
 }
 
 function stopSlideshow() {
-    clearInterval(slideshowInterval);
-    slideshowInterval = null;
-    const btn = document.getElementById('slideshowButton');
     const container = document.getElementById('slideshow-container');
-    if (container && container._escapeHandler) {
-        document.removeEventListener('keydown', container._escapeHandler);
-        container._escapeHandler = null;
-    }
-    if (container && container._cursorShow) {
-        if (container._cursorHideTimeoutId) clearTimeout(container._cursorHideTimeoutId);
-        container.removeEventListener('mousemove', container._cursorShow);
-        container.removeEventListener('pointermove', container._cursorShow);
-    }
-    if (btn) btn.textContent = 'Slideshow';
-    if (container) {
-        container.style.display = 'none';
-        container.setAttribute('aria-hidden', 'true');
-        releaseFocusTrap();
-        btn.focus();
-    }
-    document.body.style.cursor = 'auto';
-    if (document.fullscreenElement) {
-        document.exitFullscreen().catch(() => {});
-    }
+    clearInterval(slideshowInterval);
+    releaseFocusTrap();
+    if (container._esc) document.removeEventListener('keydown', container._esc);
+    container.style.display = 'none';
+    container.setAttribute('aria-hidden', 'true');
+    if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
 }
 
-document.getElementById('searchInput').addEventListener('keydown', function (event) {
-    if (event.key === 'Enter') {
-        searchWallpapers();
-    }
+// Event Bindings
+document.getElementById('searchInput').addEventListener('input', function() {
+    const clearButton = document.getElementById('clearButton');
+    clearButton.classList.toggle('visible', this.value.length > 0);
 });
 
-function scrollToGallery() {
-    const main = document.querySelector('.main');
-    if (main) main.scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
+document.getElementById('searchInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') searchWallpapers();
+});
+
+document.getElementById('searchButton').addEventListener('click', searchWallpapers);
+document.getElementById('latestButton').addEventListener('click', showLatestWallpapers);
+document.getElementById('clearButton').addEventListener('click', clearSearch);
+document.getElementById('slideshowButton').addEventListener('click', startSlideshow);
+document.getElementById('closeButton').addEventListener('click', closeFullscreen);
+document.getElementById('closeSlideshowButton').addEventListener('click', stopSlideshow);
 
 document.getElementById('prevButton').addEventListener('click', () => {
     if (currentPage > 1) {
         currentPage--;
         displayWallpapers(getPaginatedWallpapers(currentPage, currentSearchResults || wallpapers));
         updatePagination(currentSearchResults || wallpapers);
-        scrollToGallery();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 });
 
 document.getElementById('nextButton').addEventListener('click', () => {
-    const totalPages = Math.ceil((currentSearchResults || wallpapers).length / wallpapersPerPage);
+    const data = currentSearchResults || wallpapers;
+    const totalPages = Math.ceil(data.length / wallpapersPerPage);
     if (currentPage < totalPages) {
         currentPage++;
-        displayWallpapers(getPaginatedWallpapers(currentPage, currentSearchResults || wallpapers));
-        updatePagination(currentSearchResults || wallpapers);
-        scrollToGallery();
+        displayWallpapers(getPaginatedWallpapers(currentPage, data));
+        updatePagination(data);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 });
 
+// Run Application
 loadWallpapers();
