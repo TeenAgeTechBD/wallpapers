@@ -5,9 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="TATBD Wallpapers – Browse and download high-quality wallpapers.">
     <title>TATBD Wallpapers</title>
+    <script>
+        // Apply saved theme before first paint to avoid a flash of the wrong theme
+        (function () {
+            try {
+                var saved = localStorage.getItem('tatbd-theme');
+                document.documentElement.setAttribute('data-theme', saved || 'mocha');
+            } catch (e) {
+                document.documentElement.setAttribute('data-theme', 'mocha');
+            }
+        })();
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
     <link rel="icon" href="logo.png" type="image/png">
 </head>
@@ -20,14 +32,31 @@
                 </a>
                 <h1 class="site-title">TATBD Wallpapers</h1>
             </nav>
+
             <div class="search-bar">
                 <div class="search-container">
                     <input type="text" id="searchInput" class="search-input" placeholder="Search wallpapers..." aria-label="Search for wallpapers" autocomplete="off">
                     <button type="button" id="clearButton" class="btn-icon" aria-label="Clear search" title="Clear search">✕</button>
                 </div>
-                <button type="button" id="searchButton" class="btn btn-primary">Search</button>
-                <button type="button" id="latestButton" class="btn btn-primary">Latest</button>
-                <button type="button" id="slideshowButton" class="btn btn-primary">Slideshow</button>
+                <button type="button" id="searchButton" class="btn-icon action-btn" aria-label="Search" title="Search">
+                    <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                </button>
+                <button type="button" id="menuToggle" class="btn-icon menu-toggle" aria-label="Open menu" title="Menu" aria-haspopup="true" aria-expanded="false">
+                    <i class="fa-solid fa-bars" aria-hidden="true"></i>
+                </button>
+            </div>
+
+            <div class="header-menu" id="headerMenu">
+                <button type="button" id="latestButton" class="btn btn-primary">
+                    <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i> Latest
+                </button>
+                <button type="button" id="slideshowButton" class="btn btn-primary">
+                    <i class="fa-solid fa-play" aria-hidden="true"></i> Slideshow
+                </button>
+                <button type="button" id="settingsButton" class="btn-icon action-btn" aria-label="Settings" title="Settings" aria-haspopup="true" aria-expanded="false">
+                    <i class="fa-solid fa-gear" aria-hidden="true"></i>
+                    <span class="settings-label">Settings</span>
+                </button>
             </div>
         </div>
     </header>
@@ -60,6 +89,35 @@
             <button type="button" id="slideshowDownloadBtn" class="slideshow-btn slideshow-btn-download" aria-label="Download current image" title="Download">
                 <span class="slideshow-btn-icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></span>
             </button>
+        </div>
+    </div>
+
+    <div id="settings-panel" class="settings-panel" aria-hidden="true">
+        <div class="settings-panel-inner" role="dialog" aria-label="Theme settings" aria-modal="true">
+            <div class="settings-header">
+                <h2 class="settings-title"><i class="fa-solid fa-palette" aria-hidden="true"></i> Theme</h2>
+                <button type="button" id="closeSettingsButton" class="btn-icon" aria-label="Close settings" title="Close">
+                    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                </button>
+            </div>
+            <div class="theme-options" id="themeOptions">
+                <button type="button" class="theme-option" data-theme="latte" aria-pressed="false">
+                    <span class="theme-swatch" style="background: linear-gradient(135deg, #eff1f5 50%, #8839ef 50%);"></span>
+                    <span class="theme-name">Latte</span>
+                </button>
+                <button type="button" class="theme-option" data-theme="frappe" aria-pressed="false">
+                    <span class="theme-swatch" style="background: linear-gradient(135deg, #303446 50%, #ca9ee6 50%);"></span>
+                    <span class="theme-name">Frappé</span>
+                </button>
+                <button type="button" class="theme-option" data-theme="macchiato" aria-pressed="false">
+                    <span class="theme-swatch" style="background: linear-gradient(135deg, #24273a 50%, #c6a0f6 50%);"></span>
+                    <span class="theme-name">Macchiato</span>
+                </button>
+                <button type="button" class="theme-option" data-theme="mocha" aria-pressed="false">
+                    <span class="theme-swatch" style="background: linear-gradient(135deg, #1e1e2e 50%, #cba6f7 50%);"></span>
+                    <span class="theme-name">Mocha</span>
+                </button>
+            </div>
         </div>
     </div>
 
