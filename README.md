@@ -20,7 +20,7 @@ Welcome to TATBD's Ultimate Wallpapers repository! This project showcases a coll
 
 ## Adding New Wallpapers
 
-To add new wallpapers to the gallery, simply upload your image files to the `wallpapers/` folder in this repository. Supported image formats include `.jpg`, `.jpeg`, `.png`.
+To add new wallpapers to the gallery, simply fork and upload your image files to the `wallpapers/` folder in this repository and send a pull request. Supported image formats include `.jpg`, `.jpeg`, `.png`.
 
 ## Maintainers
 
@@ -29,6 +29,11 @@ This repository and webpage are maintained and operated by **TeenAgeTech Banglad
 ## Contributing
 
 We welcome contributions from the community! If you have any suggestions or improvements, please feel free to open an issue or submit a pull request.
+
+## Honorable mentions 
+
+https://github.com/SleepyCatHey/CozyPixels
+
 
 ## License
 
