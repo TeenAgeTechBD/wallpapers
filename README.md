@@ -32,7 +32,9 @@ We welcome contributions from the community! If you have any suggestions or impr
 
 ## Honorable mentions 
 
+https://github.com/AngelJumbo/gruvbox-wallpapers
 https://github.com/SleepyCatHey/CozyPixels
+https://github.com/dharmx/walls
 
 
 ## License
