@@ -14,6 +14,38 @@ let cache = {
 
 document.getElementById('currentYear').textContent = new Date().getFullYear();
 
+/* ========== Theme (Catppuccin) ========== */
+const THEME_STORAGE_KEY = 'tatbd-theme';
+const VALID_THEMES = ['latte', 'frappe', 'macchiato', 'mocha'];
+
+function getStoredTheme() {
+    try {
+        const stored = localStorage.getItem(THEME_STORAGE_KEY);
+        return VALID_THEMES.includes(stored) ? stored : 'mocha';
+    } catch (e) {
+        return 'mocha';
+    }
+}
+
+function applyTheme(theme, persist = true) {
+    if (!VALID_THEMES.includes(theme)) theme = 'mocha';
+    document.documentElement.setAttribute('data-theme', theme);
+    if (persist) {
+        try {
+            localStorage.setItem(THEME_STORAGE_KEY, theme);
+        } catch (e) {
+            /* localStorage unavailable, theme just won't persist */
+        }
+    }
+    document.querySelectorAll('.theme-option').forEach(btn => {
+        btn.setAttribute('aria-pressed', String(btn.dataset.theme === theme));
+    });
+}
+
+// Apply the persisted theme (already set on <html> by the inline head script,
+// this just syncs the settings panel UI and localStorage fallback state).
+applyTheme(getStoredTheme(), false);
+
 function showToast(message) {
     const el = document.createElement('div');
     el.className = 'toast';
@@ -204,23 +236,69 @@ function displayWallpapers(files) {
         fullscreenBtn.type = 'button';
         fullscreenBtn.className = 'btn-icon overlay-btn';
         fullscreenBtn.setAttribute('aria-label', 'View fullscreen');
-        fullscreenBtn.innerHTML = '⛶';
+        fullscreenBtn.innerHTML = '<i class="fa-solid fa-expand" aria-hidden="true"></i>';
         fullscreenBtn.onclick = (e) => {
             e.stopPropagation();
             lastFullscreenTrigger = fullscreenBtn;
             openFullscreen(file.download_url, file.name);
         };
 
-        imgElement.onclick = () => {
-            lastFullscreenTrigger = fullscreenBtn;
-            openFullscreen(file.download_url, file.name);
+        const downloadBtn = document.createElement('button');
+        downloadBtn.type = 'button';
+        downloadBtn.className = 'btn-icon overlay-btn';
+        downloadBtn.setAttribute('aria-label', 'Download wallpaper');
+        downloadBtn.innerHTML = '<i class="fa-solid fa-download" aria-hidden="true"></i>';
+        downloadBtn.onclick = (e) => {
+            e.stopPropagation();
+            downloadWallpaper(file.download_url, file.name);
         };
 
+        card.addEventListener('click', (e) => {
+            if (e.target.closest('.overlay-btn')) return;
+            if (isTouchDevice()) {
+                const wasActive = card.classList.contains('touch-active');
+                document.querySelectorAll('.wallpaper-card.touch-active').forEach(c => c.classList.remove('touch-active'));
+                if (!wasActive) card.classList.add('touch-active');
+            } else {
+                lastFullscreenTrigger = fullscreenBtn;
+                openFullscreen(file.download_url, file.name);
+            }
+        });
+
         overlay.appendChild(fullscreenBtn);
+        overlay.appendChild(downloadBtn);
         card.appendChild(imgElement);
         card.appendChild(overlay);
         gallery.appendChild(card);
     });
+}
+
+function isTouchDevice() {
+    return ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+}
+
+document.addEventListener('click', (e) => {
+    if (!e.target.closest('.wallpaper-card')) {
+        document.querySelectorAll('.wallpaper-card.touch-active').forEach(c => c.classList.remove('touch-active'));
+    }
+});
+
+function downloadWallpaper(url, name) {
+    fetch(url)
+        .then(response => response.blob())
+        .then(blob => {
+            const blobUrl = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = blobUrl;
+            a.download = (name || url.split('/').pop()).split('/').pop();
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+        })
+        .catch(() => {
+            window.open(url, '_blank');
+        });
 }
 
 function openFullscreen(url, name) {
@@ -230,6 +308,13 @@ function openFullscreen(url, name) {
 
     imgElement.src = url;
     imgElement.alt = name || url.split('/').pop();
+
+    imgElement.onload = () => {
+        if (screen.orientation && typeof screen.orientation.lock === 'function') {
+            const isLandscape = imgElement.naturalWidth >= imgElement.naturalHeight;
+            screen.orientation.lock(isLandscape ? 'landscape' : 'portrait').catch(() => {});
+        }
+    };
 
     fetch(url)
         .then(response => response.blob())
@@ -287,6 +372,9 @@ function closeFullscreen() {
     fullscreenContainer.style.display = 'none';
     fullscreenContainer.setAttribute('aria-hidden', 'true');
     if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+    if (screen.orientation && typeof screen.orientation.unlock === 'function') {
+        try { screen.orientation.unlock(); } catch (e) { /* not supported, ignore */ }
+    }
 
     lastFullscreenTrigger = null;
 
@@ -431,6 +519,91 @@ function stopSlideshow() {
     if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
 }
 
+/* ========== Mobile hamburger menu ========== */
+function openHeaderMenu() {
+    const menu = document.getElementById('headerMenu');
+    const toggle = document.getElementById('menuToggle');
+    menu.classList.add('open');
+    toggle.setAttribute('aria-expanded', 'true');
+    document.addEventListener('click', handleHeaderMenuOutsideClick, true);
+    document.addEventListener('keydown', handleHeaderMenuEscape);
+}
+
+function closeHeaderMenu() {
+    const menu = document.getElementById('headerMenu');
+    const toggle = document.getElementById('menuToggle');
+    menu.classList.remove('open');
+    toggle.setAttribute('aria-expanded', 'false');
+    document.removeEventListener('click', handleHeaderMenuOutsideClick, true);
+    document.removeEventListener('keydown', handleHeaderMenuEscape);
+}
+
+function handleHeaderMenuOutsideClick(e) {
+    const menu = document.getElementById('headerMenu');
+    const toggle = document.getElementById('menuToggle');
+    if (!menu.contains(e.target) && !toggle.contains(e.target)) {
+        closeHeaderMenu();
+    }
+}
+
+function handleHeaderMenuEscape(e) {
+    if (e.key === 'Escape') {
+        closeHeaderMenu();
+        document.getElementById('menuToggle').focus();
+    }
+}
+
+document.getElementById('menuToggle').addEventListener('click', () => {
+    const menu = document.getElementById('headerMenu');
+    if (menu.classList.contains('open')) {
+        closeHeaderMenu();
+    } else {
+        openHeaderMenu();
+    }
+});
+
+/* ========== Settings panel ========== */
+function openSettingsPanel() {
+    const panel = document.getElementById('settings-panel');
+    const settingsButton = document.getElementById('settingsButton');
+    panel.classList.add('open');
+    panel.setAttribute('aria-hidden', 'false');
+    settingsButton.setAttribute('aria-expanded', 'true');
+    closeHeaderMenu();
+    focusTrap(document.querySelector('.settings-panel-inner'));
+
+    panel._backdropClick = (e) => {
+        if (e.target === panel) closeSettingsPanel();
+    };
+    panel._escHandler = (e) => {
+        if (e.key === 'Escape') closeSettingsPanel();
+    };
+    panel.addEventListener('click', panel._backdropClick);
+    document.addEventListener('keydown', panel._escHandler);
+}
+
+function closeSettingsPanel() {
+    const panel = document.getElementById('settings-panel');
+    const settingsButton = document.getElementById('settingsButton');
+    panel.classList.remove('open');
+    panel.setAttribute('aria-hidden', 'true');
+    settingsButton.setAttribute('aria-expanded', 'false');
+    releaseFocusTrap();
+    if (panel._backdropClick) panel.removeEventListener('click', panel._backdropClick);
+    if (panel._escHandler) document.removeEventListener('keydown', panel._escHandler);
+    settingsButton.focus();
+}
+
+document.getElementById('settingsButton').addEventListener('click', openSettingsPanel);
+document.getElementById('closeSettingsButton').addEventListener('click', closeSettingsPanel);
+
+document.querySelectorAll('.theme-option').forEach(btn => {
+    btn.addEventListener('click', () => {
+        applyTheme(btn.dataset.theme);
+        showToast(`Theme set to ${btn.querySelector('.theme-name').textContent}`);
+    });
+});
+
 // Event Bindings
 document.getElementById('searchInput').addEventListener('input', function() {
     const clearButton = document.getElementById('clearButton');
@@ -442,9 +615,15 @@ document.getElementById('searchInput').addEventListener('keydown', function(e) {
 });
 
 document.getElementById('searchButton').addEventListener('click', searchWallpapers);
-document.getElementById('latestButton').addEventListener('click', showLatestWallpapers);
+document.getElementById('latestButton').addEventListener('click', () => {
+    showLatestWallpapers();
+    closeHeaderMenu();
+});
 document.getElementById('clearButton').addEventListener('click', clearSearch);
-document.getElementById('slideshowButton').addEventListener('click', startSlideshow);
+document.getElementById('slideshowButton').addEventListener('click', () => {
+    startSlideshow();
+    closeHeaderMenu();
+});
 document.getElementById('closeButton').addEventListener('click', closeFullscreen);
 document.getElementById('closeSlideshowButton').addEventListener('click', stopSlideshow);
 
