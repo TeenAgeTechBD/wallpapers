@@ -156,8 +156,36 @@ function showEmpty(message, onClear) {
     document.getElementById('clearSearchBtn').addEventListener('click', onClear);
 }
 
+async function fetchWallpaperList() {
+    // Primary source: jsDelivr's data API, which is CDN-backed and has no
+    // meaningful rate limit (unlike the raw GitHub API, which caps
+    // unauthenticated requests at 60/hour per IP).
+    try {
+        const response = await fetch('https://data.jsdelivr.com/v1/packages/gh/TeenAgeTechBD/wallpapers@main/flat');
+        if (!response.ok) throw new Error('jsDelivr request failed');
+        const data = await response.json();
+        const files = (data.files || [])
+            .filter(f => /^\/wallpapers\/.+\.(jpe?g|png|gif)$/i.test(f.name))
+            .map(f => ({
+                name: f.name.split('/').pop(),
+                download_url: `https://cdn.jsdelivr.net/gh/TeenAgeTechBD/wallpapers@main${f.name}`
+            }));
+        if (files.length) return files;
+        throw new Error('No wallpapers found via jsDelivr');
+    } catch (jsDelivrError) {
+        console.warn('jsDelivr fetch failed, falling back to GitHub API:', jsDelivrError);
+    }
+
+    // Fallback: GitHub's Contents API (rate limited, but works if jsDelivr is unreachable)
+    const response = await fetch('https://api.github.com/repos/TeenAgeTechBD/wallpapers/contents/wallpapers');
+    if (!response.ok) throw new Error('Failed to fetch wallpapers');
+    const files = await response.json();
+    return files.filter(file =>
+        file.name.endsWith('.jpg') || file.name.endsWith('.jpeg') || file.name.endsWith('.png') || file.name.endsWith('.gif')
+    );
+}
+
 async function loadWallpapers() {
-    const repoUrl = 'https://api.github.com/repos/TeenAgeTechBD/wallpapers/contents/wallpapers';
     const gallery = document.getElementById('gallery');
 
     if (cache.data && Date.now() - cache.timestamp < cache.cacheDuration) {
@@ -170,13 +198,7 @@ async function loadWallpapers() {
 
     showLoading();
     try {
-        const response = await fetch(repoUrl);
-        if (!response.ok) throw new Error('Failed to fetch wallpapers');
-        const files = await response.json();
-
-        wallpapers = files.filter(file =>
-            file.name.endsWith('.jpg') || file.name.endsWith('.jpeg') || file.name.endsWith('.png') || file.name.endsWith('.gif')
-        );
+        wallpapers = await fetchWallpaperList();
 
         cache.data = [...wallpapers];
         cache.timestamp = Date.now();
